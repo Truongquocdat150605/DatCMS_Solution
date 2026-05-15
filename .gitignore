@@ -1,0 +1,17 @@
+# Visual Studio files
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.dbmdl
+*.jsproj.user
+
+# Node/React files
+node_modules/
+npm-debug.log*
+build/
+.env
+
+# Others
+.DS_Store 

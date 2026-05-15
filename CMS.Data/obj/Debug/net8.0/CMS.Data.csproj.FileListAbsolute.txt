@@ -5,6 +5,7 @@ D:\CMS_Project\CMS.Data\obj\Debug\net8.0\CMS.Data.GeneratedMSBuildEditorConfig.e
 D:\CMS_Project\CMS.Data\obj\Debug\net8.0\CMS.Data.AssemblyInfoInputs.cache
 D:\CMS_Project\CMS.Data\obj\Debug\net8.0\CMS.Data.AssemblyInfo.cs
 D:\CMS_Project\CMS.Data\obj\Debug\net8.0\CMS.Data.csproj.CoreCompileInputs.cache
+D:\CMS_Project\CMS.Data\obj\Debug\net8.0\CMS.Data.sourcelink.json
 D:\CMS_Project\CMS.Data\obj\Debug\net8.0\CMS.Data.dll
 D:\CMS_Project\CMS.Data\obj\Debug\net8.0\refint\CMS.Data.dll
 D:\CMS_Project\CMS.Data\obj\Debug\net8.0\CMS.Data.pdb
