@@ -1,0 +1,32 @@
+﻿@model IEnumerable<CMS.Data.Entities.Post>
+
+@{
+    ViewData["Title"] = "Danh sách bài viết công nghệ";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary">BÀI TẬP BUỔI 02: QUẢN LÝ BÀI VIẾT</h2>
+    <p>Sinh viên: <b>Trương Quốc Đạt - 2123110209</b></p>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>STT</th>
+                <th>Tiêu đề bài viết</th>
+                <th>Chuyên mục</th>
+                <th>Ngày đăng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Title</td>
+                    <td><span class="badge bg-success">@item.Category?.Name</span></td>
+                    <td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

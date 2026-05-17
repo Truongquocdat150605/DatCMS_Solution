@@ -1,0 +1,24 @@
+﻿@model IEnumerable<CMS.Data.Entities.Category>
+
+<div class="container">
+    <h2>Danh sách chuyên mục (Dữ liệu thật từ SQL)</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên chuyên mục</th>
+                <th>Mô tả</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

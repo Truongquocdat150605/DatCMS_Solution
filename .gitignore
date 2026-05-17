@@ -15,3 +15,7 @@ build/
 
 # Others
 .DS_Store 
+"CMS.Data/bin/" 
+"CMS.Data/obj/" 
+"CMS.Backend/bin/" 
+"CMS.Backend/obj/" 

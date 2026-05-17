@@ -1,0 +1,59 @@
+﻿@model IEnumerable<CMS.Data.Entities.Order>
+
+@{
+    ViewData["Title"] = "Danh sách đơn hàng";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary">BÀI TẬP 6: DANH SÁCH ĐƠN HÀNG (ORDERS)</h2>
+    <p>Sinh viên: <b>Trương Quốc Đạt - 2123110209</b></p>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">
+            Chưa có dữ liệu trong bảng Orders. Vui lòng nhập dữ liệu mẫu trong SSMS.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã đơn hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Khách hàng</th>
+                    <th>Trạng thái</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    string statusText = order.Status switch
+                    {
+                        0 => "Chờ duyệt",
+                        1 => "Đang giao",
+                        2 => "Đã xong",
+                        _ => "Không xác định"
+                    };
+
+                    string statusClass = order.Status switch
+                    {
+                        0 => "bg-warning",
+                        1 => "bg-info",
+                        2 => "bg-success",
+                        _ => "bg-secondary"
+                    };
+
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@order.Customer?.FullName</td>
+                        <td><span class="badge @statusClass">@statusText</span></td>
+                        <td>@(string.IsNullOrEmpty(order.Notes) ? "Không có" : order.Notes)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

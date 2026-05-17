@@ -5,13 +5,18 @@
  * định tuyến (Routing) và là điểm khởi động của hệ thống.
  */
 
+using CMS.Data; // Thêm dòng này để nó hiểu CMSDbContext
+using Microsoft.EntityFrameworkCore; // Thêm dòng này để dùng lệnh UseSqlServer
+
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Cấu hình các dịch vụ cho Container (Dependency Injection)
 builder.Services.AddControllersWithViews();
 
-// Sau này bạn sẽ thêm cấu hình Database (DbContext) tại đây:
-// builder.Services.AddDbContext<CMSDbContext>(...);
+// --- THÊM ĐOẠN NÀY ĐỂ KẾT NỐI DATABASE ---
+builder.Services.AddDbContext<CMSDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// ----------------------------------------
 
 var app = builder.Build();
 
@@ -22,16 +27,21 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection(); // Tự động chuyển hướng sang HTTPS
-app.UseStaticFiles();      // Cho phép sử dụng các file tĩnh (css, js, images)
+app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-app.UseRouting();          // Kích hoạt hệ thống định tuyến
+app.UseRouting();
 
-app.UseAuthorization();    // Kích hoạt hệ thống phân quyền
+app.UseAuthorization();
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<CMSDbContext>();
+    DbInitializer.Initialize(context);
+}
 
 // 3. Định nghĩa cấu hình Route mặc định
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.Run(); // Bắt đầu chạy ứng dụng
+app.Run();
