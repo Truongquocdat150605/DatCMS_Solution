@@ -1,0 +1,66 @@
+﻿@* * Người thực hiện: Trương Quốc Đạt
+ * MSSV: 2123110209
+ * Ngày thực hiện: 22/05/2026
+ * Tên file: Edit.cshtml
+ * Mô tả: Giao diện chỉnh sửa bài viết - Bài tập Buổi 03.
+ * Chức năng: Hiển thị dữ liệu cũ và cho phép người dùng cập nhật thông tin bài viết.
+ *@
+
+@model CMS.Data.Entities.Post
+
+@{
+    ViewData["Title"] = "Chỉnh sửa bài viết";
+}
+
+<div class="container mt-4">
+    <h2 class="text-warning text-uppercase">CHỈNH SỬA BÀI VIẾT</h2>
+    <p>Sinh viên thực hiện: <b>Trương Quốc Đạt - 2123110209</b></p>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Tiêu đề bài viết</label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Chuyên mục</label>
+                    <select asp-for="CategoryId" class="form-select"
+                            asp-items="@(new SelectList(ViewBag.CategoryId, "Id", "Name"))">
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Nội dung</label>
+                    <textarea asp-for="Content" class="form-control" rows="8"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Ngày đăng</label>
+                    <input asp-for="CreatedDate" type="date" class="form-control" />
+                    <span asp-validation-for="CreatedDate" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-warning">Cập nhật thay đổi</button>
+                    <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

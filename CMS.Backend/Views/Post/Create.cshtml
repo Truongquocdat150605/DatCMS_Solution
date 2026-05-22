@@ -1,0 +1,65 @@
+﻿@* * Người thực hiện: Trương Quốc Đạt
+ * MSSV: 2123110209
+ * Ngày thực hiện: 22/05/2026
+ * Tên file: Create.cshtml
+ * Mô tả: Giao diện thêm bài viết mới - Bài tập Buổi 03.
+ * Chức năng: Cung cấp form nhập liệu để thêm bài viết vào CSDL, bao gồm chọn danh mục.
+ *@
+
+@model CMS.Data.Entities.Post
+
+@{
+    ViewData["Title"] = "Thêm bài viết mới";
+}
+
+<div class="container mt-4">
+    <h2 class="text-success text-uppercase">THÊM BÀI VIẾT MỚI</h2>
+    <p>Sinh viên thực hiện: <b>Trương Quốc Đạt - 2123110209</b></p>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Tiêu đề bài viết</label>
+                    <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề bài viết..." />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Chuyên mục</label>
+                    <select asp-for="CategoryId" class="form-select"
+                            asp-items="@(new SelectList(ViewBag.CategoryId, "Id", "Name"))">
+                        <option value="">-- Chọn chuyên mục --</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Nội dung</label>
+                    <textarea asp-for="Content" class="form-control" rows="5" placeholder="Viết nội dung vào đây..."></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Ngày đăng</label>
+                    <input asp-for="CreatedDate" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="CreatedDate" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Lưu bài viết</button>
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

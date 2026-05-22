@@ -1,54 +1,69 @@
 ﻿@model IEnumerable<CMS.Data.Entities.Product>
+@* /* * Người thực hiện: Trương Quốc Đạt
+ * MSSV: 2123110209
+ * Ngày thực hiện: 22/05/2026
+ * Tên file: Index.cshtml (Product)
+ * Mô tả: Danh sách sản phẩm có đầy đủ nút Thêm, Sửa, Xóa.
+ */ *@
 
 @{
     ViewData["Title"] = "Danh sách sản phẩm";
 }
 
 <div class="container mt-4">
-    <h2 class="text-primary">BÀI TẬP 4: DANH SÁCH SẢN PHẨM (PRODUCTS)</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">BÀI TẬP 4: DANH SÁCH SẢN PHẨM (PRODUCTS)</h2>
+        <a asp-action="Create" class="btn btn-primary">Thêm sản phẩm mới</a>
+    </div>
+
     <p>Sinh viên: <b>Trương Quốc Đạt - 2123110209</b></p>
 
     @if (!Model.Any())
     {
         <div class="alert alert-warning">
-            Chưa có dữ liệu trong bảng Products. Vui lòng nhập dữ liệu mẫu trong SSMS.
+            Chưa có dữ liệu trong bảng Products. Vui lòng bấm "Thêm sản phẩm mới" hoặc nhập dữ liệu trong SSMS.
         </div>
     }
     else
     {
         <table class="table table-bordered table-striped table-hover">
-            <thead class="table-dark">
+            <thead class="table-dark text-center">
                 <tr>
                     <th>ID</th>
                     <th>Tên sản phẩm</th>
-                    <th>Mô tả</th>
                     <th>Giá (VNĐ)</th>
-                    <th>Số lượng tồn</th>
+                    <th>Tồn kho</th>
                     <th>Hình ảnh</th>
                     <th>Danh mục</th>
+                    <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var product in Model)
                 {
                     <tr>
-                        <td>@product.Id</td>
-                        <td>@product.Name</td>
-                        <td>@product.Description</td>
-                        <td>@product.Price.ToString("N0")</td>
-                        <td>@product.StockQuantity</td>
-                        <td>
+                        <td class="text-center">@product.Id</td>
+                        <td><b>@product.Name</b></td>
+                        <td class="text-end">@product.Price.ToString("N0")</td>
+                        <td class="text-center">@product.StockQuantity</td>
+                        <td class="text-center">
                             @if (!string.IsNullOrEmpty(product.ImageUrl))
                             {
-                                <img src="@product.ImageUrl" width="60" class="img-thumbnail" />
+                                <img src="@product.ImageUrl" width="50" class="img-thumbnail" />
                             }
                             else
                             {
-                                <span class="text-muted">Không có ảnh</span>
+                                <span class="text-muted small">No Image</span>
                             }
                         </td>
-                        <td>
-                            <span class="badge bg-info">@product.CategoryProduct?.Name</span>
+                        <td class="text-center">
+                            <span class="badge bg-info text-dark">@product.CategoryProduct?.Name</span>
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-warning btn-sm">Sửa</a>
+                            <a asp-action="Delete" asp-route-id="@product.Id"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('M có chắc muốn xóa sản phẩm này không?')">Xóa</a>
                         </td>
                     </tr>
                 }

@@ -1,0 +1,73 @@
+﻿@model CMS.Data.Entities.Customer
+/* * Người thực hiện: Trương Quốc Đạt
+   * MSSV: 2123110209
+   * Ngày thực hiện: 22/05/2026
+   * Tên file: Edit.cshtml (Customer)
+   * Mô tả: Giao diện chỉnh sửa thông tin khách hàng - CMS Project.
+ */
+
+@{
+    ViewData["Title"] = "Chỉnh sửa khách hàng";
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-dark">
+            <h2 class="mb-0">CHỈNH SỬA THÔNG TIN KHÁCH HÀNG</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Đang cập nhật thông tin cho khách hàng: <b>@Model.FullName</b></p>
+            <hr />
+
+            <form asp-action="Edit">
+                @* Cực kỳ quan trọng: Phải có Id để hệ thống biết đang sửa ai *@
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label font-weight-bold">Họ và tên</label>
+                        <input asp-for="FullName" class="form-control" placeholder="Nhập họ tên..." />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label font-weight-bold">Email liên hệ</label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="example@gmail.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label font-weight-bold">Số điện thoại</label>
+                        <input asp-for="Phone" class="form-control" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label font-weight-bold">Mật khẩu (Cấp lại)</label>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Để trống nếu không đổi" />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label font-weight-bold">Địa chỉ thường trú</label>
+                        <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="col-12 mt-4 text-center">
+                        <button type="submit" class="btn btn-primary px-5">
+                            <i class="fas fa-save"></i> Cập nhật ngay
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Quay lại danh sách</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer text-end text-muted small">
+            Sinh viên thực hiện: Trương Quốc Đạt - 2123110209
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

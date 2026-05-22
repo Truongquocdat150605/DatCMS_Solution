@@ -1,0 +1,55 @@
+﻿@model CMS.Data.Entities.CategoryProduct
+/* * Người thực hiện: Trương Quốc Đạt
+   * MSSV: 2123110209
+   * Ngày thực hiện: 22/05/2026
+   * Tên file: Create.cshtml (CategoryProduct)
+   * Mô tả: Giao diện thêm mới danh mục sản phẩm (Phân loại cho bảng Product).
+ */
+
+@{
+    ViewData["Title"] = "Thêm danh mục sản phẩm";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">THÊM DANH MỤC SẢN PHẨM MỚI</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Nhập tên các loại sản phẩm (Ví dụ: Điện thoại, Laptop, Phụ kiện...)</p>
+            <hr />
+
+            <form asp-action="Create">
+                <div class="row col-md-8">
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">Tên danh mục sản phẩm</label>
+                        <input asp-for="Name" class="form-control" placeholder="Nhập tên loại sản phẩm..." />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">Mô tả danh mục</label>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả ngắn gọn về loại sản phẩm này..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="fas fa-plus"></i> Lưu danh mục
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary px-4">Quay lại danh sách</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer text-muted small">
+            Người thực hiện: Trương Quốc Đạt - 2123110209
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

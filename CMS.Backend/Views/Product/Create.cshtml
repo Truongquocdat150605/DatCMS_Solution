@@ -1,0 +1,48 @@
+﻿@model CMS.Data.Entities.Product
+@* /* * Người thực hiện: Trương Quốc Đạt - 2123110209
+   * Ngày thực hiện: 22/05/2026
+   * Tên file: Create.cshtml (Product)
+   * Mô tả: Đã sửa tên trường CategoryProductId khớp với Entity.
+ */ *@
+
+<div class="container mt-4">
+    <h2 class="text-primary">THÊM SẢN PHẨM MỚI</h2>
+    <hr />
+    <form asp-action="Create">
+        <div class="row col-md-8">
+            <div class="mb-3">
+                <label class="form-label">Tên sản phẩm</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Giá bán</label>
+                <input asp-for="Price" type="number" step="0.01" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Số lượng tồn</label>
+                <input asp-for="StockQuantity" type="number" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Danh mục sản phẩm</label>
+                @* Sửa CategoryId thành CategoryProductId ở đây *@
+                <select asp-for="CategoryProductId" class="form-control" asp-items="ViewBag.CategoryProductId">
+                    <option value="">-- Chọn danh mục --</option>
+                </select>
+                <span asp-validation-for="CategoryProductId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Đường dẫn ảnh (URL)</label>
+                <input asp-for="ImageUrl" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mô tả</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">Lưu sản phẩm</button>
+                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+            </div>
+        </div>
+    </form>
+</div>

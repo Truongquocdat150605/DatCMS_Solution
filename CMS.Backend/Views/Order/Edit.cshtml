@@ -1,0 +1,45 @@
+@model CMS.Data.Entities.Order
+@{
+    ViewData["Title"] = "Sửa đơn hàng";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary mb-4">Chỉnh sửa đơn hàng #@Model.Id</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Edit">
+                <input type="hidden" asp-for="Id" />
+                <div class="mb-3">
+                    <label class="form-label">Khách hàng</label>
+                    <select asp-for="CustomerId" class="form-select" asp-items="ViewBag.CustomerId"></select>
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Ngày đặt</label>
+                    <input asp-for="OrderDate" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="OrderDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="0">Chờ duyệt</option>
+                        <option value="1">Đang giao</option>
+                        <option value="2">Đã xong</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Ghi chú</label>
+                    <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Cập nhật</button>
+                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+            </form>
+        </div>
+    </div>
+</div>

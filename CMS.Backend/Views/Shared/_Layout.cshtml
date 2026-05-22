@@ -1,70 +1,160 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CMS.Backend</title>
+    <title>@ViewData["Title"] - Admin CMS</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CMS.Backend.styles.css" asp-append-version="true" />
+
+    <style>
+        body {
+            overflow-x: hidden;
+            background-color: #f8f9fc;
+        }
+
+        #wrapper {
+            display: flex;
+        }
+        /* Sidebar Style */
+        #sidebar-wrapper {
+            min-height: 100vh;
+            width: 250px;
+            background-color: #4e73df;
+            background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            transition: margin .25s ease-out;
+        }
+
+            #sidebar-wrapper .sidebar-heading {
+                padding: 1.5rem 1.25rem;
+                font-size: 1.2rem;
+                color: white;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            #sidebar-wrapper .list-group {
+                width: 250px;
+            }
+
+            #sidebar-wrapper .list-group-item {
+                background: transparent;
+                color: rgba(255,255,255,0.8);
+                border: none;
+                padding: 1rem 1.5rem;
+            }
+
+                #sidebar-wrapper .list-group-item:hover {
+                    background: rgba(255,255,255,0.1);
+                    color: white;
+                }
+
+                #sidebar-wrapper .list-group-item i {
+                    margin-right: 10px;
+                    width: 20px;
+                }
+
+        /* Content Style */
+        #page-content-wrapper {
+            width: 100%;
+        }
+
+        .navbar-admin {
+            background-color: white;
+            box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15);
+            margin-bottom: 2rem;
+        }
+
+        .footer-admin {
+            background: white;
+            padding: 20px 0;
+            border-top: 1px solid #e3e6f0;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CMS.Backend</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Post" asp-action="Index">Bài viết</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Danh mục</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Thành viên</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="CategoryProduct" asp-action="Index">Category Products</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Sản phẩm</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Customer" asp-action="Index">Khách hàng</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="Index">Đơn hàng</a>
-                        </li>
-                    </ul>
-                </div>
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom">
+                <i class="fas fa-user-shield"></i> ADMIN CMS
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+            <div class="list-group list-group-flush">
+                <a asp-controller="Home" asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <div class="px-3 py-2 small text-uppercase text-white-50">Quản lý nội dung</div>
+                <a asp-controller="Category" asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-folder"></i> Danh mục bài viết
+                </a>
+                <a asp-controller="Post" asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-newspaper"></i> Bài viết
+                </a>
+
+                <div class="px-3 py-2 small text-uppercase text-white-50">Quản lý bán hàng</div>
+                <a asp-controller="CategoryProduct" asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tags"></i> Loại sản phẩm
+                </a>
+                <a asp-controller="Product" asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-box"></i> Sản phẩm
+                </a>
+                <a asp-controller="Order" asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-shopping-cart"></i> Đơn hàng
+                </a>
+                <a asp-controller="OrderDetail" asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-list-alt"></i> Chi tiết đơn hàng
+                </a>
+
+                <div class="px-3 py-2 small text-uppercase text-white-50">Hệ thống</div>
+                <a asp-controller="Customer" asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users"></i> Khách hàng
+                </a>
+                <a asp-controller="User" asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user-cog"></i> Thành viên
+                </a>
+            </div>
+        </div>
+
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light navbar-admin border-bottom py-3 px-4">
+                <div class="container-fluid">
+                    <button class="btn btn-outline-primary btn-sm" id="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="ms-auto d-flex align-items-center">
+                        <span class="me-3 text-gray-600 small">Xin chào, <b>@User.Identity?.Name</b> Đạt</span>
+                        <div class="topbar-divider d-none d-sm-block mx-2 border-start" style="height: 24px;"></div>
+                        <a href="#" class="btn btn-sm btn-light text-danger"><i class="fas fa-sign-out-alt"></i></a>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+
+            <footer class="footer-admin text-center mt-auto">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>&copy; 2026 - CMS Admin - Thực hiện bởi <b>Trương Quốc Đạt (2123110209)</b></span>
+                    </div>
+                </div>
+            </footer>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - CMS.Backend - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Hiệu ứng đóng mở Sidebar
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#sidebar-wrapper").css("margin-left", $("#sidebar-wrapper").css("margin-left") == "0px" ? "-250px" : "0px");
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
