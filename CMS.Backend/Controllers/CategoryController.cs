@@ -4,6 +4,7 @@
  */
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization; // ✅ THÊM DÒNG NÀY
 using CMS.Data;
 using CMS.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
 {
+    [Authorize(Roles = "Admin, Editor")] // ✅ THÊM DÒNG NÀY - Chỉ Admin và Editor mới vào được
     public class CategoryController : Controller
     {
         private readonly CMSDbContext _db;
@@ -33,7 +35,6 @@ namespace CMS.Backend.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Category category)
         {
-            // 1. CHỐNG TRÙNG TÊN DANH MỤC BÀI VIẾT
             var isExist = await _db.Categories.AnyAsync(c => c.Name == category.Name);
             if (isExist)
             {
@@ -65,7 +66,6 @@ namespace CMS.Backend.Controllers
         {
             if (id != category.Id) return NotFound();
 
-            // CHỐNG TRÙNG TÊN KHI SỬA
             var isExist = await _db.Categories.AnyAsync(c => c.Name == category.Name && c.Id != id);
             if (isExist)
             {
@@ -82,10 +82,10 @@ namespace CMS.Backend.Controllers
             return View(category);
         }
 
-        // 2. FIX LỖI XÓA (KIỂM TRA BÀI VIẾT CON)
+        // ✅ CHỈ ADMIN MỚI ĐƯỢC XÓA
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            // Kiểm tra xem có bài viết (Post) nào đang dùng danh mục này không
             var hasPosts = await _db.Posts.AnyAsync(p => p.CategoryId == id);
 
             if (hasPosts)

@@ -2,10 +2,11 @@
  * MSSV: 2123110209
  * Ngày thực hiện: 22/05/2026
  * Tên file: CustomerController.cs
- * Mô tả: Quản lý thông tin khách hàng - Bài tập rèn luyện Buổi 02.
+ * Mô tả: Quản lý thông tin khách hàng - Đã thêm phân quyền.
  */
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization; // ✅ THÊM DÒNG NÀY
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
 using CMS.Data.Entities;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
 {
+    [Authorize(Roles = "Admin, Editor")] // ✅ THÊM DÒNG NÀY
     public class CustomerController : Controller
     {
         private readonly CMSDbContext _context;
@@ -22,18 +24,15 @@ namespace CMS.Backend.Controllers
             _context = context;
         }
 
-        // 1. DANH SÁCH KHÁCH HÀNG
         public async Task<IActionResult> Index()
         {
             var customers = await _context.Customers.ToListAsync();
             return View(customers);
         }
 
-        // 2. THÊM MỚI (GET)
         [HttpGet]
         public IActionResult Create() => View();
 
-        // 3. THÊM MỚI (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Customer customer)
@@ -47,7 +46,6 @@ namespace CMS.Backend.Controllers
             return View(customer);
         }
 
-        // 4. CHỈNH SỬA (GET)
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -57,7 +55,6 @@ namespace CMS.Backend.Controllers
             return View(customer);
         }
 
-        // 5. CHỈNH SỬA (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Customer customer)
@@ -73,7 +70,8 @@ namespace CMS.Backend.Controllers
             return View(customer);
         }
 
-        // 6. XÓA KHÁCH HÀNG
+        // ✅ CHỈ ADMIN MỚI ĐƯỢC XÓA
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var hasOrders = await _context.Orders.AnyAsync(o => o.CustomerId == id);

@@ -1,4 +1,4 @@
-﻿@* * Người thực hiện: Trương Quốc Đạt
+@* * Người thực hiện: Trương Quốc Đạt
  * MSSV: 2123110209
  * Ngày sửa thêm: 22/05/2026
  * Tên file: Index.cshtml
@@ -52,6 +52,7 @@
                 <th>Tiêu đề bài viết</th>
                 <th>Chuyên mục</th>
                 <th>Ngày đăng</th>
+                <th>Hình ảnh</th>
                 <th>Thao tác</th>
             </tr>
         </thead>
@@ -73,6 +74,16 @@
                             <span class="badge bg-info text-dark">@item.Category?.Name</span>
                         </td>
                         <td class="text-center">@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center">
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" width="70" class="rounded shadow-sm" />
+                            }
+                            else
+                            {
+                                <i class="text-muted">No Image</i>
+                            }
+                        </td>
                         <td class="text-center">
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Sửa</a>
                             <a asp-action="Delete" asp-route-id="@item.Id"

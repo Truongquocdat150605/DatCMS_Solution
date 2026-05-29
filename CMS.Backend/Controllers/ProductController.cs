@@ -10,10 +10,13 @@ using Microsoft.EntityFrameworkCore;
 using CMS.Data;
 using CMS.Data.Entities;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CMS.Backend.Controllers
 {
+    [Authorize(Roles = "Admin, Editor")] // Backend chỉ dành cho Admin và Editor
     public class ProductController : Controller
     {
         private readonly CMSDbContext _context;
@@ -23,81 +26,112 @@ namespace CMS.Backend.Controllers
             _context = context;
         }
 
+        // 1. DANH SÁCH SẢN PHẨM
         public async Task<IActionResult> Index()
         {
-            var products = await _context.Products
-                .Include(p => p.CategoryProduct)
-                .ToListAsync();
+            var products = await _context.Products.Include(p => p.CategoryProduct).ToListAsync();
             return View(products);
         }
 
+        // 2. THÊM MỚI (GET)
         [HttpGet]
+        [Authorize(Roles = "Admin, Editor")] // Chỉ Admin và Editor được thêm mới
         public async Task<IActionResult> Create()
         {
-            // Sửa tên field thành CategoryProductId
-            ViewBag.CategoryProductId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name");
+            ViewBag.CategoryProductId = new SelectList(await _context.CategoryProducts.ToListAsync(), "Id", "Name");
             return View();
         }
 
+        // 3. THÊM MỚI (POST) - CÓ UPLOAD ẢNH SẢN PHẨM
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product)
+        [Authorize(Roles = "Admin, Editor")]
+        public async Task<IActionResult> Create(Product product, IFormFile uploadImage)
         {
             ModelState.Remove("CategoryProduct");
-
-            // 1. KIỂM TRA TRÙNG TÊN:
-            var isExist = await _context.Products.AnyAsync(p => p.Name == product.Name);
-            if (isExist)
-            {
-                ModelState.AddModelError("Name", "Tên sản phẩm này đã tồn tại trong hệ thống rồi Đạt ơi!");
-            }
+            ModelState.Remove("ImageUrl");
 
             if (ModelState.IsValid)
             {
+                if (uploadImage != null && uploadImage.Length > 0)
+                {
+                    string folder = @"D:\CMS_Project\CMS.Backend\wwwroot\uploads\";
+                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(uploadImage.FileName);
+                    string filePath = Path.Combine(folder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await uploadImage.CopyToAsync(stream);
+                    }
+                    product.ImageUrl = "/uploads/" + fileName;
+                }
+
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewBag.CategoryProductId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", product.CategoryProductId);
+            ViewBag.CategoryProductId = new SelectList(await _context.CategoryProducts.ToListAsync(), "Id", "Name", product.CategoryProductId);
             return View(product);
         }
 
+        // 4. CHỈNH SỬA (GET)
         [HttpGet]
+        [Authorize(Roles = "Admin, Editor")] // Chỉ Admin và Editor được sửa
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
             var product = await _context.Products.FindAsync(id);
             if (product == null) return NotFound();
-
-            // Sửa tên field thành CategoryProductId
-            ViewBag.CategoryProductId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", product.CategoryProductId);
+            ViewBag.CategoryProductId = new SelectList(await _context.CategoryProducts.ToListAsync(), "Id", "Name", product.CategoryProductId);
             return View(product);
         }
 
+        // 5. CHỈNH SỬA (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Product product)
+        [Authorize(Roles = "Admin, Editor")]
+        public async Task<IActionResult> Edit(int id, Product product, IFormFile? uploadImage)
         {
             if (id != product.Id) return NotFound();
+
             ModelState.Remove("CategoryProduct");
+            ModelState.Remove("ImageUrl");
+
             if (ModelState.IsValid)
             {
+                if (uploadImage != null && uploadImage.Length > 0)
+                {
+                    string folder = @"D:\CMS_Project\CMS.Backend\wwwroot\uploads\";
+                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(uploadImage.FileName);
+                    string filePath = Path.Combine(folder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await uploadImage.CopyToAsync(stream);
+                    }
+                    product.ImageUrl = "/uploads/" + fileName;
+                }
+
                 _context.Update(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.CategoryProductId = new SelectList(await _context.Categories.ToListAsync(), "Id", "Name", product.CategoryProductId);
+            ViewBag.CategoryProductId = new SelectList(await _context.CategoryProducts.ToListAsync(), "Id", "Name", product.CategoryProductId);
             return View(product);
         }
 
-        // XÓA SẢN PHẨM
+        // 6. XÓA SẢN PHẨM (KIỂM TRA RÀNG BUỘC ĐƠN HÀNG)
+        [Authorize(Roles = "Admin")] // Chỉ Admin được xóa
         public async Task<IActionResult> Delete(int id)
         {
             var hasOrderDetails = await _context.OrderDetails.AnyAsync(od => od.ProductId == id);
             if (hasOrderDetails)
             {
-                TempData["Error"] = "Không thể xóa! Sản phẩm này đã từng được mua (nằm trong đơn hàng). Phải xóa đơn hàng chứa sản phẩm này trước.";
+                TempData["Error"] = "Không thể xóa! Sản phẩm này đã nằm trong đơn hàng.";
                 return RedirectToAction(nameof(Index));
             }
 

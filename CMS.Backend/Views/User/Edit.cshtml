@@ -1,4 +1,4 @@
-﻿@model CMS.Data.Entities.User
+@model CMS.Data.Entities.User
 /* * Sinh viên: Trương Quốc Đạt - 2123110209
    * File: Edit.cshtml (User) */
 
@@ -17,8 +17,16 @@
                 <input asp-for="FullName" class="form-control" />
             </div>
             <div class="mb-3">
+                <label class="form-label">Mật khẩu (Nhập lại hoặc đổi mới)</label>
+                <input asp-for="PasswordHash" type="password" class="form-control" />
+            </div>
+            <div class="mb-3">
                 <label class="form-label">Quyền (Role)</label>
-                <input asp-for="Role" class="form-control" />
+                <select asp-for="Role" class="form-control">
+                    <option value="Admin">Admin</option>
+                    <option value="Editor">Editor</option>
+                    <option value="User">User</option>
+                </select>
             </div>
             <div>
                 <button type="submit" class="btn btn-primary">Cập nhật</button>

@@ -9,10 +9,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
 using CMS.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
 {
+    [Authorize(Roles = "Admin")] // CHỈ ADMIN MỚI ĐƯỢC QUẢN LÝ NGƯỜI DÙNG
     public class UserController : Controller
     {
         private readonly CMSDbContext _context;
@@ -42,6 +44,7 @@ namespace CMS.Backend.Controllers
             {
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã thêm tài khoản '{user.Username}' thành công!";
                 return RedirectToAction(nameof(Index));
             }
             return View(user);
@@ -70,6 +73,7 @@ namespace CMS.Backend.Controllers
                 {
                     _context.Update(user);
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = $"Đã cập nhật tài khoản '{user.Username}' thành công!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
@@ -87,8 +91,14 @@ namespace CMS.Backend.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
+                string username = user.Username;
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã xóa tài khoản '{username}' thành công!";
+            }
+            else
+            {
+                TempData["Error"] = "Không tìm thấy người dùng cần xóa.";
             }
             return RedirectToAction(nameof(Index));
         }

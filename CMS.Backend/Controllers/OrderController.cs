@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization; // ✅ THÊM DÒNG NÀY
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
 {
+    [Authorize(Roles = "Admin, Editor")] // ✅ THÊM DÒNG NÀY
     public class OrderController : Controller
     {
         private readonly CMSDbContext _context;
@@ -16,7 +18,6 @@ namespace CMS.Backend.Controllers
             _context = context;
         }
 
-        // GET: Order/Index
         public async Task<IActionResult> Index()
         {
             var orders = await _context.Orders
@@ -25,7 +26,6 @@ namespace CMS.Backend.Controllers
             return View(orders);
         }
 
-        // GET: Order/Create
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -33,7 +33,6 @@ namespace CMS.Backend.Controllers
             return View();
         }
 
-        // POST: Order/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Order order)
@@ -52,7 +51,6 @@ namespace CMS.Backend.Controllers
             return View(order);
         }
 
-        // GET: Order/Edit
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -64,7 +62,6 @@ namespace CMS.Backend.Controllers
             return View(order);
         }
 
-        // POST: Order/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Order order)
@@ -85,7 +82,8 @@ namespace CMS.Backend.Controllers
             return View(order);
         }
 
-        // GET: Order/Delete
+        // ✅ CHỈ ADMIN MỚI ĐƯỢC XÓA
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var hasOrderDetails = await _context.OrderDetails.AnyAsync(od => od.OrderId == id);

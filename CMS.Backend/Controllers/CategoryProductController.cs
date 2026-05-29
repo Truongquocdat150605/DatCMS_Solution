@@ -6,6 +6,7 @@
  */
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization; // ✅ THÊM DÒNG NÀY
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
 using CMS.Data.Entities;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
 {
+    [Authorize(Roles = "Admin, Editor")] // ✅ THÊM DÒNG NÀY
     public class CategoryProductController : Controller
     {
         private readonly CMSDbContext _context;
@@ -22,23 +24,19 @@ namespace CMS.Backend.Controllers
             _context = context;
         }
 
-        // 1. DANH SÁCH
         public async Task<IActionResult> Index()
         {
             var data = await _context.CategoryProducts.ToListAsync();
             return View(data);
         }
 
-        // 2. THÊM MỚI (GET)
         [HttpGet]
         public IActionResult Create() => View();
 
-        // 3. THÊM MỚI (POST) - Cập nhật logic chống trùng tên
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CategoryProduct categoryProduct)
         {
-            // Kiểm tra trùng tên danh mục
             var isExist = await _context.CategoryProducts.AnyAsync(c => c.Name == categoryProduct.Name);
             if (isExist)
             {
@@ -55,7 +53,6 @@ namespace CMS.Backend.Controllers
             return View(categoryProduct);
         }
 
-        // 4. CHỈNH SỬA (GET)
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -65,14 +62,12 @@ namespace CMS.Backend.Controllers
             return View(data);
         }
 
-        // 5. CHỈNH SỬA (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CategoryProduct categoryProduct)
         {
             if (id != categoryProduct.Id) return NotFound();
 
-            // Kiểm tra trùng tên với các danh mục khác (ngoại trừ chính nó)
             var isExist = await _context.CategoryProducts
                 .AnyAsync(c => c.Name == categoryProduct.Name && c.Id != id);
             if (isExist)
@@ -90,15 +85,14 @@ namespace CMS.Backend.Controllers
             return View(categoryProduct);
         }
 
-        // 6. XÓA DANH MỤC (Có kiểm tra ràng buộc Cha-Con)
+        // ✅ CHỈ ADMIN MỚI ĐƯỢC XÓA
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            // Kiểm tra xem có sản phẩm nào đang thuộc danh mục này không
             var hasProducts = await _context.Products.AnyAsync(p => p.CategoryProductId == id);
 
             if (hasProducts)
             {
-                // Thông báo lỗi ra View nếu còn dữ liệu con
                 TempData["Error"] = "Không thể xóa! Danh mục này đang có sản phẩm. M phải xóa hết sản phẩm thuộc danh mục này trước.";
                 return RedirectToAction(nameof(Index));
             }

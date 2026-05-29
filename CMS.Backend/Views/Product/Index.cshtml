@@ -1,73 +1,72 @@
-﻿@model IEnumerable<CMS.Data.Entities.Product>
-@* /* * Người thực hiện: Trương Quốc Đạt
- * MSSV: 2123110209
- * Ngày thực hiện: 22/05/2026
- * Tên file: Index.cshtml (Product)
- * Mô tả: Danh sách sản phẩm có đầy đủ nút Thêm, Sửa, Xóa.
- */ *@
+@model IEnumerable<CMS.Data.Entities.Product>
 
 @{
     ViewData["Title"] = "Danh sách sản phẩm";
 }
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="text-primary">BÀI TẬP 4: DANH SÁCH SẢN PHẨM (PRODUCTS)</h2>
-        <a asp-action="Create" class="btn btn-primary">Thêm sản phẩm mới</a>
-    </div>
-
+    <h2 class="text-primary text-uppercase">QUẢN LÝ SẢN PHẨM</h2>
     <p>Sinh viên: <b>Trương Quốc Đạt - 2123110209</b></p>
 
-    @if (!Model.Any())
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-success">+ Thêm sản phẩm mới</a>
+    </div>
+
+    @if (TempData["Error"] != null)
     {
-        <div class="alert alert-warning">
-            Chưa có dữ liệu trong bảng Products. Vui lòng bấm "Thêm sản phẩm mới" hoặc nhập dữ liệu trong SSMS.
-        </div>
+        <div class="alert alert-danger">@TempData["Error"]</div>
     }
-    else
-    {
-        <table class="table table-bordered table-striped table-hover">
-            <thead class="table-dark text-center">
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>ID</th>
+                <th>Tên sản phẩm</th>
+                <th>Hình ảnh</th>
+                <th>Giá bán</th>
+                <th>Tồn kho</th>
+                <th>Danh mục</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
                 <tr>
-                    <th>ID</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Giá (VNĐ)</th>
-                    <th>Tồn kho</th>
-                    <th>Hình ảnh</th>
-                    <th>Danh mục</th>
-                    <th>Thao tác</th>
+                    <td colspan="7" class="text-center">Chưa có sản phẩm nào.</td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var product in Model)
+            }
+            else
+            {
+                foreach (var item in Model)
                 {
                     <tr>
-                        <td class="text-center">@product.Id</td>
-                        <td><b>@product.Name</b></td>
-                        <td class="text-end">@product.Price.ToString("N0")</td>
-                        <td class="text-center">@product.StockQuantity</td>
+                        <td class="text-center">@item.Id</td>
+                        <td><b>@item.Name</b></td>
                         <td class="text-center">
-                            @if (!string.IsNullOrEmpty(product.ImageUrl))
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
                             {
-                                <img src="@product.ImageUrl" width="50" class="img-thumbnail" />
+                                <img src="@item.ImageUrl" width="70" class="rounded shadow-sm" alt="@item.Name" />
                             }
                             else
                             {
-                                <span class="text-muted small">No Image</span>
+                                <i class="text-muted">No Image</i>
                             }
                         </td>
+                        <td class="text-end">@item.Price.ToString("N0") VNĐ</td>
+                        <td class="text-center">@item.StockQuantity</td>
                         <td class="text-center">
-                            <span class="badge bg-info text-dark">@product.CategoryProduct?.Name</span>
+                            <span class="badge bg-info text-dark">@(item.CategoryProduct?.Name ?? "N/A")</span>
                         </td>
                         <td class="text-center">
-                            <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-warning btn-sm">Sửa</a>
-                            <a asp-action="Delete" asp-route-id="@product.Id"
-                               class="btn btn-danger btn-sm"
-                               onclick="return confirm('M có chắc muốn xóa sản phẩm này không?')">Xóa</a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Sửa</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id"
+                               onclick="return confirm('M có chắc muốn xóa sản phẩm này không Đạt?')"
+                               class="btn btn-sm btn-danger">Xóa</a>
                         </td>
                     </tr>
                 }
-            </tbody>
-        </table>
-    }
+            }
+        </tbody>
+    </table>
 </div>

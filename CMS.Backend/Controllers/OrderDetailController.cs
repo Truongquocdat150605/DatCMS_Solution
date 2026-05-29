@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization; // ✅ THÊM DÒNG NÀY
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
 {
+    [Authorize(Roles = "Admin, Editor")] // ✅ THÊM DÒNG NÀY
     public class OrderDetailController : Controller
     {
         private readonly CMSDbContext _context;
@@ -16,7 +18,6 @@ namespace CMS.Backend.Controllers
             _context = context;
         }
 
-        // GET: OrderDetail/Index
         public async Task<IActionResult> Index()
         {
             var orderDetails = await _context.OrderDetails
@@ -26,7 +27,6 @@ namespace CMS.Backend.Controllers
             return View(orderDetails);
         }
 
-        // GET: OrderDetail/Create
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -35,7 +35,6 @@ namespace CMS.Backend.Controllers
             return View();
         }
 
-        // POST: OrderDetail/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(OrderDetail orderDetail)
@@ -55,7 +54,6 @@ namespace CMS.Backend.Controllers
             return View(orderDetail);
         }
 
-        // GET: OrderDetail/Edit
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -68,7 +66,6 @@ namespace CMS.Backend.Controllers
             return View(orderDetail);
         }
 
-        // POST: OrderDetail/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, OrderDetail orderDetail)
@@ -90,7 +87,8 @@ namespace CMS.Backend.Controllers
             return View(orderDetail);
         }
 
-        // GET: OrderDetail/Delete
+        // ✅ CHỈ ADMIN MỚI ĐƯỢC XÓA
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var orderDetail = await _context.OrderDetails.FindAsync(id);

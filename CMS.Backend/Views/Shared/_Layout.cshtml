@@ -42,12 +42,18 @@
                 background: transparent;
                 color: rgba(255,255,255,0.8);
                 border: none;
-                padding: 1rem 1.5rem;
+                padding: 0.8rem 1.5rem;
             }
 
                 #sidebar-wrapper .list-group-item:hover {
                     background: rgba(255,255,255,0.1);
                     color: white;
+                }
+
+                #sidebar-wrapper .list-group-item.active {
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    border-left: 4px solid #ffc107;
                 }
 
                 #sidebar-wrapper .list-group-item i {
@@ -71,70 +77,209 @@
             padding: 20px 0;
             border-top: 1px solid #e3e6f0;
         }
+
+        /* Avatar style */
+        .avatar-circle {
+            width: 35px;
+            height: 35px;
+            background-color: #4e73df;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        /* Toast notification */
+        .toast-notify {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+        }
+
+        /* Badge role */
+        .role-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .role-admin {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .role-editor {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .role-user {
+            background-color: #6c757d;
+            color: white;
+        }
     </style>
 </head>
 <body>
+    <!-- Toast Notification - Hiển thị thông báo -->
+    <div class="toast-notify">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow" role="alert">
+                <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Warning"] != null)
+        {
+            <div class="alert alert-warning alert-dismissible fade show shadow" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i> @TempData["Warning"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+
     <div id="wrapper">
+        <!-- Sidebar -->
         <div id="sidebar-wrapper">
             <div class="sidebar-heading border-bottom">
                 <i class="fas fa-user-shield"></i> ADMIN CMS
             </div>
             <div class="list-group list-group-flush">
-                <a asp-controller="Home" asp-action="Index" class="list-group-item list-group-item-action">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <div class="px-3 py-2 small text-uppercase text-white-50">Quản lý nội dung</div>
-                <a asp-controller="Category" asp-action="Index" class="list-group-item list-group-item-action">
-                    <i class="fas fa-folder"></i> Danh mục bài viết
-                </a>
-                <a asp-controller="Post" asp-action="Index" class="list-group-item list-group-item-action">
-                    <i class="fas fa-newspaper"></i> Bài viết
-                </a>
+                @{
+                    var isAdmin = User.IsInRole("Admin");
+                    var isEditor = User.IsInRole("Editor");
+                    var isAuthenticated = User.Identity.IsAuthenticated;
+                }
 
-                <div class="px-3 py-2 small text-uppercase text-white-50">Quản lý bán hàng</div>
-                <a asp-controller="CategoryProduct" asp-action="Index" class="list-group-item list-group-item-action">
-                    <i class="fas fa-tags"></i> Loại sản phẩm
-                </a>
-                <a asp-controller="Product" asp-action="Index" class="list-group-item list-group-item-action">
-                    <i class="fas fa-box"></i> Sản phẩm
-                </a>
-                <a asp-controller="Order" asp-action="Index" class="list-group-item list-group-item-action">
-                    <i class="fas fa-shopping-cart"></i> Đơn hàng
-                </a>
-                <a asp-controller="OrderDetail" asp-action="Index" class="list-group-item list-group-item-action">
-                    <i class="fas fa-list-alt"></i> Chi tiết đơn hàng
-                </a>
+                @if (isAuthenticated)
+                {
+                    <!-- Dashboard - Ai cũng thấy -->
+                    <a asp-controller="Home" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
 
-                <div class="px-3 py-2 small text-uppercase text-white-50">Hệ thống</div>
-                <a asp-controller="Customer" asp-action="Index" class="list-group-item list-group-item-action">
-                    <i class="fas fa-users"></i> Khách hàng
-                </a>
-                <a asp-controller="User" asp-action="Index" class="list-group-item list-group-item-action">
-                    <i class="fas fa-user-cog"></i> Thành viên
-                </a>
+                    <!-- ========== QUẢN LÝ NỘI DUNG ========== -->
+                    <div class="px-3 py-2 small text-uppercase text-white-50 mt-2">Quản lý nội dung</div>
+
+                    <a asp-controller="Category" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-folder"></i> Danh mục bài viết
+                    </a>
+                    <a asp-controller="Post" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-newspaper"></i> Bài viết
+                    </a>
+
+                    <!-- ========== QUẢN LÝ BÁN HÀNG ========== -->
+                    <div class="px-3 py-2 small text-uppercase text-white-50 mt-2">Quản lý bán hàng</div>
+
+                    <a asp-controller="CategoryProduct" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tags"></i> Loại sản phẩm
+                    </a>
+                    <a asp-controller="Product" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-box"></i> Sản phẩm
+                    </a>
+                    <a asp-controller="Order" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shopping-cart"></i> Đơn hàng
+                    </a>
+                    <a asp-controller="OrderDetail" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-list-alt"></i> Chi tiết đơn hàng
+                    </a>
+
+                    <!-- ========== HỆ THỐNG ========== -->
+                    <div class="px-3 py-2 small text-uppercase text-white-50 mt-2">Hệ thống</div>
+
+                    <a asp-controller="Customer" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users"></i> Khách hàng
+                    </a>
+
+                    @* CHỈ ADMIN MỚI THẤY MENU THÀNH VIÊN *@
+                    @if (isAdmin)
+                    {
+                        <a asp-controller="User" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user-cog"></i> Thành viên
+                        </a>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-white-50 p-4">
+                        <i class="fas fa-lock fa-2x mb-2 d-block"></i>
+                        <small>Vui lòng đăng nhập</small>
+                    </div>
+                }
             </div>
         </div>
 
+        <!-- Page Content -->
         <div id="page-content-wrapper">
-            <nav class="navbar navbar-expand-lg navbar-light navbar-admin border-bottom py-3 px-4">
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light navbar-admin border-bottom py-2 px-4">
                 <div class="container-fluid">
                     <button class="btn btn-outline-primary btn-sm" id="menu-toggle">
                         <i class="fas fa-bars"></i>
                     </button>
+
                     <div class="ms-auto d-flex align-items-center">
-                        <span class="me-3 text-gray-600 small">Xin chào, <b>@User.Identity?.Name</b> Đạt</span>
-                        <div class="topbar-divider d-none d-sm-block mx-2 border-start" style="height: 24px;"></div>
-                        <a href="#" class="btn btn-sm btn-light text-danger"><i class="fas fa-sign-out-alt"></i></a>
+                        @if (isAuthenticated)
+                        {
+                            <!-- Avatar -->
+                            <div class="avatar-circle me-2">
+                                @{
+                                    var firstChar = User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U";
+                                }
+                                @firstChar
+                            </div>
+
+                            <div class="me-3">
+                                <span class="text-gray-600 small d-block">
+                                    Xin chào, <b>@User.Identity.Name</b>
+                                </span>
+                                @{
+                                    var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "User";
+                                    var roleClass = userRole == "Admin" ? "role-admin" : (userRole == "Editor" ? "role-editor" : "role-user");
+                                }
+                                <span class="role-badge @roleClass">
+                                    <i class="fas @(userRole == "Admin" ? "fa-crown" : "fa-user")"></i> @userRole
+                                </span>
+                            </div>
+
+                            <div class="topbar-divider d-none d-sm-block mx-2 border-start" style="height: 30px;"></div>
+
+                            <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Bạn có chắc chắn muốn đăng xuất không?')">
+                                <i class="fas fa-sign-out-alt"></i> Thoát
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                            </a>
+                        }
                     </div>
                 </div>
             </nav>
 
+            <!-- Main Content -->
             <div class="container-fluid px-4">
                 <main role="main" class="pb-3">
                     @RenderBody()
                 </main>
             </div>
 
+            <!-- Footer -->
             <footer class="footer-admin text-center mt-auto">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
@@ -152,8 +297,20 @@
         // Hiệu ứng đóng mở Sidebar
         $("#menu-toggle").click(function(e) {
             e.preventDefault();
-            $("#sidebar-wrapper").css("margin-left", $("#sidebar-wrapper").css("margin-left") == "0px" ? "-250px" : "0px");
+            var currentMargin = $("#sidebar-wrapper").css("margin-left");
+            if (currentMargin === "0px") {
+                $("#sidebar-wrapper").css("margin-left", "-250px");
+            } else {
+                $("#sidebar-wrapper").css("margin-left", "0px");
+            }
         });
+
+        // Tự động ẩn thông báo sau 5 giây
+        setTimeout(function() {
+            $(".alert").fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 5000);
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

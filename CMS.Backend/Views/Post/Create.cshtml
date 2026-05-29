@@ -19,7 +19,7 @@
 
     <div class="row">
         <div class="col-md-8">
-            <form asp-action="Create" method="post">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="mb-3">
@@ -38,28 +38,27 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label font-weight-bold">Hình ảnh đại diện</label>
+                    <input type="file" name="uploadImage" class="form-control" accept="image/*" />
+                    <small class="text-muted">Nên chọn ảnh định dạng .jpg, .png</small>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label font-weight-bold">Nội dung</label>
-                    <textarea asp-for="Content" class="form-control" rows="5" placeholder="Viết nội dung vào đây..."></textarea>
+                    <textarea asp-for="Content" class="form-control" rows="5"></textarea>
                     <span asp-validation-for="Content" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label font-weight-bold">Ngày đăng</label>
                     <input asp-for="CreatedDate" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
-                    <span asp-validation-for="CreatedDate" class="text-danger"></span>
                 </div>
 
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">Lưu bài viết</button>
-                    <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
