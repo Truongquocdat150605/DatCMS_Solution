@@ -27,8 +27,18 @@ namespace CMS.Backend.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            // Nếu đã đăng nhập rồi thì đá sang trang chủ luôn
-            if (User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
+            if (User.Identity.IsAuthenticated)
+            {
+                var role = User.FindFirstValue(ClaimTypes.Role)?.Trim() ?? string.Empty;
+                if (role.Equals("Admin", System.StringComparison.OrdinalIgnoreCase) ||
+                    role.Equals("Editor", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                return Redirect("http://localhost:3000");
+            }
+
             return View();
         }
 
@@ -41,10 +51,13 @@ namespace CMS.Backend.Controllers
 
             if (user != null)
             {
+                var role = user.Role?.Trim() ?? string.Empty;
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Role, user.Role), // Phân quyền linh động từ DB
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, role), // Phân quyền linh động từ DB
                     new Claim("FullName", user.FullName ?? ""),
                     new Claim("MSSV", "2123110209")
                 };
@@ -53,6 +66,14 @@ namespace CMS.Backend.Controllers
 
                 await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(claimsIdentity));
 
+                // Nếu không phải Admin hoặc Editor, đẩy về trang người dùng (Frontend)
+                if (!role.Equals("Admin", System.StringComparison.OrdinalIgnoreCase) &&
+                    !role.Equals("Editor", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return Redirect("http://localhost:3000");
+                }
+
+                // Nếu là Admin/Editor thì cho vào trang quản trị (Dashboard)
                 return RedirectToAction("Index", "Home");
             }
 

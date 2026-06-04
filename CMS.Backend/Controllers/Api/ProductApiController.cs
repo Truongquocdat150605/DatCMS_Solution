@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers.Api
 {
-    [Route("api/[controller]")]
+    [Route("api/Products")]
     [ApiController]
     public class ProductApiController : ControllerBase
     {
@@ -20,6 +21,7 @@ namespace CMS.Backend.Controllers.Api
         }
 
         // 1. GET: api/ProductApi - Lấy tất cả sản phẩm
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
@@ -36,6 +38,7 @@ namespace CMS.Backend.Controllers.Api
         }
 
         // 2. GET: api/ProductApi/5 - Lấy chi tiết sản phẩm theo ID
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
@@ -51,7 +54,26 @@ namespace CMS.Backend.Controllers.Api
             return Ok(product);
         }
 
+        // 2.5 GET: api/ProductApi/category/{categoryProductId} - Lọc sản phẩm theo danh mục
+        [AllowAnonymous]
+        [HttpGet("category/{categoryProductId}")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProductsByCategory(int categoryProductId)
+        {
+            var products = await _context.Products
+                .Include(p => p.CategoryProduct)
+                .Where(p => p.CategoryProductId == categoryProductId)
+                .ToListAsync();
+
+            if (products == null || !products.Any())
+            {
+                return NotFound(new { message = $"Không tìm thấy sản phẩm nào thuộc danh mục {categoryProductId}." });
+            }
+
+            return Ok(products);
+        }
+
         // 3. POST: api/ProductApi - Thêm sản phẩm mới
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct([FromBody] Product product)
         {
@@ -67,6 +89,7 @@ namespace CMS.Backend.Controllers.Api
         }
 
         // 4. PUT: api/ProductApi/5 - Cập nhật sản phẩm
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct(int id, [FromBody] Product product)
         {
@@ -97,6 +120,7 @@ namespace CMS.Backend.Controllers.Api
         }
 
         // 5. DELETE: api/ProductApi/5 - Xóa sản phẩm
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {

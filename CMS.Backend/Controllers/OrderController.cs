@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization; // ✅ THÊM DÒNG NÀY
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
 {
-    [Authorize(Roles = "Admin, Editor")] // ✅ THÊM DÒNG NÀY
+    [Authorize(Roles = "Admin, Editor")]
     public class OrderController : Controller
     {
         private readonly CMSDbContext _context;

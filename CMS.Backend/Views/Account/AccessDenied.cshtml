@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Từ chối truy cập";
     Layout = "_Layout";
 }
@@ -37,11 +37,21 @@
 
             <!-- Nút điều hướng -->
             <div class="mt-4">
-                <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg me-2">
-                    <i class="fas fa-home me-2"></i> Về trang chủ
-                </a>
-                <a href="javascript:history.back()" class="btn btn-secondary btn-lg">
-                    <i class="fas fa-arrow-left me-2"></i> Quay lại
+                @if (User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value == "User")
+                {
+                    <a href="http://localhost:3000" class="btn btn-success btn-lg me-2">
+                        <i class="fas fa-shopping-cart me-2"></i> Sang trang Mua Hàng (Frontend)
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg me-2">
+                        <i class="fas fa-home me-2"></i> Về trang chủ Quản trị
+                    </a>
+                }
+                
+                <a asp-controller="Account" asp-action="Logout" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất ngay
                 </a>
             </div>
         </div>

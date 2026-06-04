@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers.Api
 {
-    [Route("api/[controller]")]
+    [Route("api/Users")]
     [ApiController]
     public class UserApiController : ControllerBase
     {
@@ -19,6 +20,7 @@ namespace CMS.Backend.Controllers.Api
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
@@ -27,6 +29,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(users);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
@@ -35,6 +38,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(user);
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPost]
         public async Task<ActionResult<User>> PostUser([FromBody] User user)
         {
@@ -44,6 +48,7 @@ namespace CMS.Backend.Controllers.Api
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, [FromBody] User user)
         {
@@ -57,6 +62,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(new { message = "Cập nhật thành công!", data = user });
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {

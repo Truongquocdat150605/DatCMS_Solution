@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers.Api
 {
-    [Route("api/[controller]")]
+    [Route("api/Customers")]
     [ApiController]
     public class CustomerApiController : ControllerBase
     {
@@ -19,6 +20,7 @@ namespace CMS.Backend.Controllers.Api
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
         {
@@ -27,6 +29,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(customers);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
@@ -35,6 +38,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(customer);
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer([FromBody] Customer customer)
         {
@@ -44,6 +48,7 @@ namespace CMS.Backend.Controllers.Api
             return CreatedAtAction(nameof(GetCustomer), new { id = customer.Id }, customer);
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCustomer(int id, [FromBody] Customer customer)
         {
@@ -57,6 +62,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(new { message = "Cập nhật thành công!", data = customer });
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {

@@ -4,6 +4,7 @@
  */
 
 using CMS.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models; // Dùng cho Swagger UI
 
@@ -37,9 +38,12 @@ builder.Services.AddSwaggerGen(c =>
 // Cấu hình CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowReactFrontend", policy =>
     {
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); // Rất quan trọng để truyền Cookie giữa 2 port khác nhau
     });
 });
 
@@ -47,17 +51,31 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<CMSDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Authentication & Authorization (Buổi 05) - Phiên bản đầy đủ
-builder.Services.AddAuthentication("CookieAuth")
-    .AddCookie("CookieAuth", options =>
-    {
-        options.Cookie.Name = "UserLoginCookie";
-        options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromDays(14);
-        options.SlidingExpiration = true;
-    });
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "CookieAuth";
+    options.DefaultChallengeScheme = "CookieAuth";
+})
+.AddCookie("CookieAuth", options =>
+{
+    options.Cookie.Name = "CookieAuth";
+    options.Cookie.HttpOnly = true;
+
+    // SecurePolicy: Bắt buộc dùng HTTPS để cho phép gửi cookie cross-origin
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+
+    // None: Cho phép gửi cookie cross-site giữa React (3000) và Backend (7048)
+    options.Cookie.SameSite = SameSiteMode.None;
+
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+});
+
 builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 
@@ -76,7 +94,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-app.UseCors("AllowAll"); // Bật CORS ở đây
+app.UseCors("AllowReactFrontend"); // Bật CORS hỗ trợ Cookie cho React
 
 app.UseAuthentication();
 app.UseAuthorization();

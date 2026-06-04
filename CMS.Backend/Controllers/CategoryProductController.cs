@@ -1,4 +1,4 @@
-﻿/* * Người thực hiện: Trương Quốc Đạt
+/* * Người thực hiện: Trương Quốc Đạt
  * MSSV: 2123110209
  * Ngày thực hiện: 22/05/2026
  * Tên file: CategoryProductController.cs
@@ -6,7 +6,7 @@
  */
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization; // ✅ THÊM DÒNG NÀY
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
 using CMS.Data.Entities;
@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
 {
-    [Authorize(Roles = "Admin, Editor")] // ✅ THÊM DÒNG NÀY
+    [Authorize(Roles = "Admin, Editor")]
     public class CategoryProductController : Controller
     {
         private readonly CMSDbContext _context;

@@ -1,10 +1,10 @@
-﻿/* * Người thực hiện: Trương Quốc Đạt - 2123110209
+/* * Người thực hiện: Trương Quốc Đạt - 2123110209
  * Tên file: CategoryController.cs
  * Mô tả: Đã bổ sung chống trùng tên và kiểm tra ràng buộc với bảng Post.
  */
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization; // ✅ THÊM DÒNG NÀY
+using Microsoft.AspNetCore.Authorization;
 using CMS.Data;
 using CMS.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
 {
-    [Authorize(Roles = "Admin, Editor")] // ✅ THÊM DÒNG NÀY - Chỉ Admin và Editor mới vào được
+    [Authorize(Roles = "Admin, Editor")]
     public class CategoryController : Controller
     {
         private readonly CMSDbContext _db;

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers.Api
 {
-    [Route("api/[controller]")]
+    [Route("api/Posts")]
     [ApiController]
     public class PostApiController : ControllerBase
     {
@@ -19,6 +20,7 @@ namespace CMS.Backend.Controllers.Api
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Post>>> GetPosts()
         {
@@ -27,6 +29,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(posts);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<Post>> GetPost(int id)
         {
@@ -35,6 +38,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(post);
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPost]
         public async Task<ActionResult<Post>> PostPost([FromBody] Post post)
         {
@@ -44,6 +48,7 @@ namespace CMS.Backend.Controllers.Api
             return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPost(int id, [FromBody] Post post)
         {
@@ -57,6 +62,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(new { message = "Cập nhật thành công!", data = post });
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePost(int id)
         {

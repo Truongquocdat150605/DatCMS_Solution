@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization; // ✅ THÊM DÒNG NÀY
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers
 {
-    [Authorize(Roles = "Admin, Editor")] // ✅ THÊM DÒNG NÀY
+    [Authorize(Roles = "Admin, Editor")]
     public class OrderDetailController : Controller
     {
         private readonly CMSDbContext _context;
@@ -88,6 +88,7 @@ namespace CMS.Backend.Controllers
         }
 
         // ✅ CHỈ ADMIN MỚI ĐƯỢC XÓA
+        // GET: OrderDetail/Delete/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
 using CMS.Data.Entities;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers.Api
 {
-    [Route("api/[controller]")]
+    [Route("api/CategoriesProducts")]
     [ApiController]
     public class CategoryProductApiController : ControllerBase
     {
@@ -20,6 +21,7 @@ namespace CMS.Backend.Controllers.Api
         }
 
         // 1. GET: api/CategoryProductApi - Lấy tất cả danh mục
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryProduct>>> GetCategories()
         {
@@ -36,6 +38,7 @@ namespace CMS.Backend.Controllers.Api
         }
 
         // 2. GET: api/CategoryProductApi/5 - Lấy chi tiết danh mục theo ID
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryProduct>> GetCategory(int id)
         {
@@ -52,6 +55,7 @@ namespace CMS.Backend.Controllers.Api
         }
 
         // 3. POST: api/CategoryProductApi - Thêm danh mục mới
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPost]
         public async Task<ActionResult<CategoryProduct>> PostCategory([FromBody] CategoryProduct categoryProduct)
         {
@@ -67,6 +71,7 @@ namespace CMS.Backend.Controllers.Api
         }
 
         // 4. PUT: api/CategoryProductApi/5 - Cập nhật danh mục
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCategory(int id, [FromBody] CategoryProduct categoryProduct)
         {
@@ -97,6 +102,7 @@ namespace CMS.Backend.Controllers.Api
         }
 
         // 5. DELETE: api/CategoryProductApi/5 - Xóa danh mục
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CMS.Data;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Backend.Controllers.Api
 {
-    [Route("api/[controller]")]
+    [Route("api/OrderDetails")]
     [ApiController]
     public class OrderDetailApiController : ControllerBase
     {
@@ -19,6 +20,7 @@ namespace CMS.Backend.Controllers.Api
             _context = context;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderDetail>>> GetOrderDetails()
         {
@@ -30,6 +32,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(details);
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderDetail>> GetOrderDetail(int id)
         {
@@ -41,6 +44,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(detail);
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPost]
         public async Task<ActionResult<OrderDetail>> PostOrderDetail([FromBody] OrderDetail detail)
         {
@@ -50,6 +54,7 @@ namespace CMS.Backend.Controllers.Api
             return CreatedAtAction(nameof(GetOrderDetail), new { id = detail.Id }, detail);
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrderDetail(int id, [FromBody] OrderDetail detail)
         {
@@ -63,6 +68,7 @@ namespace CMS.Backend.Controllers.Api
             return Ok(new { message = "Cập nhật thành công!", data = detail });
         }
 
+        [Authorize(Roles = "Admin,Administrator")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrderDetail(int id)
         {
