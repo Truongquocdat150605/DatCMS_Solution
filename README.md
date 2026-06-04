@@ -3,7 +3,7 @@
 ### 👤 Thông tin sinh viên thực hiện
 * **Họ và tên:** Trương Quốc Đạt
 * **MSSV:** 2123110209
-* **Chuyên ngành:** An ninh mạng (Cyber Security)
+
 * **Học phần:** Phát triển ứng dụng Web (Buổi 03)
 
 ---
