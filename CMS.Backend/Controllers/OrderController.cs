@@ -18,12 +18,26 @@ namespace CMS.Backend.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, int? status)
         {
-            var orders = await _context.Orders
-                .Include(o => o.Customer)
-                .ToListAsync();
-            return View(orders);
+            // Giữ lại giá trị để hiển thị trên View
+            ViewBag.SearchString = searchString;
+            ViewBag.StatusFilter = status;
+
+            var orders = _context.Orders.Include(o => o.Customer).AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                orders = orders.Where(o => o.Customer != null && o.Customer.FullName.Contains(searchString));
+            }
+
+            if (status.HasValue)
+            {
+                orders = orders.Where(o => o.Status == status.Value);
+            }
+
+            // Mặc định sắp xếp đơn hàng mới nhất lên đầu
+            return View(await orders.OrderByDescending(o => o.OrderDate).ToListAsync());
         }
 
         [HttpGet]

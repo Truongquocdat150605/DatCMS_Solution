@@ -51,6 +51,13 @@ namespace CMS.Backend.Controllers
             ModelState.Remove("CategoryProduct");
             ModelState.Remove("ImageUrl");
 
+            // ✅ Validate FK trước khi Update để tránh lỗi FK constraint
+            bool categoryExists = await _context.CategoryProducts.AnyAsync(c => c.Id == product.CategoryProductId);
+            if (!categoryExists)
+            {
+                ModelState.AddModelError("CategoryProductId", "Danh mục loại sản phẩm không tồn tại. Vui lòng chọn lại.");
+            }
+
             if (ModelState.IsValid)
             {
                 if (uploadImage != null && uploadImage.Length > 0)
@@ -98,6 +105,13 @@ namespace CMS.Backend.Controllers
 
             ModelState.Remove("CategoryProduct");
             ModelState.Remove("ImageUrl");
+
+            // ✅ Validate FK trước khi Update để tránh lỗi FK constraint
+            bool categoryExists = await _context.CategoryProducts.AnyAsync(c => c.Id == product.CategoryProductId);
+            if (!categoryExists)
+            {
+                ModelState.AddModelError("CategoryProductId", "Danh mục loại sản phẩm không tồn tại. Vui lòng chọn lại.");
+            }
 
             if (ModelState.IsValid)
             {

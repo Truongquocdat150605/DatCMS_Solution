@@ -1,4 +1,4 @@
-﻿
+
 
 
 /* * Tên file: Order.cs
@@ -24,6 +24,12 @@ namespace CMS.Data.Entities
         public int Status { get; set; } // 0: Chờ duyệt, 1: Đang giao, 2: Đã xong
 
         public string? Notes { get; set; }
+
+        public string? PaymentMethod { get; set; } // VD: COD, PayOS, Stripe
+        
+        public string? PaymentStatus { get; set; } // VD: Pending, Paid, Failed
+        
+        public string? TransactionId { get; set; } // Lưu mã giao dịch từ cổng thanh toán
 
         [ForeignKey("CustomerId")]
         public virtual Customer? Customer { get; set; }

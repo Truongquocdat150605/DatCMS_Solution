@@ -65,38 +65,62 @@ namespace CMS.Backend.Controllers.Api
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> PostOrder([FromBody] Order order)
+        public async Task<IActionResult> PostOrder([FromBody] CreateOrderRequest request)
         {
-            if (order == null || order.OrderDetails == null || !order.OrderDetails.Any())
+            if (request == null || request.OrderDetails == null || !request.OrderDetails.Any())
                 return BadRequest(new { message = "Giỏ hàng rỗng hoặc dữ liệu không hợp lệ." });
 
-            // 1. Tạo thông tin đơn hàng mặc định
-            order.OrderDate = System.DateTime.Now;
-            order.Status = 0; // 0 - Chờ duyệt
-
-            // 2. Lặp qua chi tiết đơn hàng (lấy đúng giá và trừ tồn kho)
-            foreach (var detail in order.OrderDetails)
+            var order = new Order
             {
-                var product = await _context.Products.FindAsync(detail.ProductId);
-                if (product == null)
-                    return BadRequest(new { message = $"Sản phẩm ID {detail.ProductId} không tồn tại." });
+                CustomerId = request.CustomerId,
+                Notes = request.Notes,
+                PaymentMethod = request.PaymentMethod ?? "COD",
+                PaymentStatus = request.PaymentMethod?.ToUpper() == "COD" ? "Pending" : "WaitingPayment",
+                OrderDate = System.DateTime.Now,
+                Status = 0
+            };
 
-                if (product.StockQuantity < detail.Quantity)
+            order.OrderDetails = new List<OrderDetail>();
+
+            foreach (var d in request.OrderDetails)
+            {
+                var product = await _context.Products.FindAsync(d.ProductId);
+                if (product == null)
+                    return BadRequest(new { message = $"Sản phẩm ID {d.ProductId} không tồn tại." });
+
+                if (product.StockQuantity < d.Quantity)
                     return BadRequest(new { message = $"Sản phẩm {product.Name} không đủ tồn kho (Còn {product.StockQuantity})." });
 
-                // Gán đúng giá hiện tại của sản phẩm từ Database
-                detail.UnitPrice = product.Price;
+                order.OrderDetails.Add(new OrderDetail
+                {
+                    ProductId = d.ProductId,
+                    Quantity = d.Quantity,
+                    UnitPrice = product.Price
+                });
 
-                // Khấu trừ số lượng tồn kho
-                product.StockQuantity -= detail.Quantity;
+                product.StockQuantity -= d.Quantity;
                 _context.Entry(product).State = EntityState.Modified;
             }
 
-            // 3. Lưu vào database
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return Ok(new { success = true, message = "Đặt hàng thành công", orderId = order.Id });
+            return Ok(new { success = true, message = "Tạo đơn hàng thành công", orderId = order.Id });
+        }
+
+        public class CreateOrderRequest
+        {
+            public int CustomerId { get; set; }
+            public string? Notes { get; set; }
+            public string? PaymentMethod { get; set; } // COD, PayOS, Stripe
+            public List<OrderDetailRequest> OrderDetails { get; set; } = new();
+        }
+
+        public class OrderDetailRequest
+        {
+            public int ProductId { get; set; }
+            public int Quantity { get; set; }
+            public decimal UnitPrice { get; set; }
         }
 
         [Authorize(Roles = "Admin,Administrator")]

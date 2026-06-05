@@ -18,13 +18,27 @@ namespace CMS.Backend.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? orderId, string productName)
         {
-            var orderDetails = await _context.OrderDetails
+            ViewBag.OrderIdFilter = orderId;
+            ViewBag.ProductNameSearch = productName;
+
+            var orderDetails = _context.OrderDetails
                 .Include(od => od.Order)
                 .Include(od => od.Product)
-                .ToListAsync();
-            return View(orderDetails);
+                .AsQueryable();
+
+            if (orderId.HasValue)
+            {
+                orderDetails = orderDetails.Where(od => od.OrderId == orderId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(productName))
+            {
+                orderDetails = orderDetails.Where(od => od.Product != null && od.Product.Name.Contains(productName));
+            }
+
+            return View(await orderDetails.OrderByDescending(od => od.Id).ToListAsync());
         }
 
         [HttpGet]

@@ -1,6 +1,7 @@
 ﻿@{
-    Layout = null; // Giữ nguyên không dùng Layout chung
+    Layout = "_Layout";
 }
+
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -21,7 +22,7 @@
 
         .login-card {
             width: 100%;
-            max-width: 400px;
+            max-width: 440px;
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -50,6 +51,38 @@
                 background: #224abe;
                 transform: translateY(-2px);
             }
+
+        .form-section-title {
+            font-weight: 700;
+            color: #224abe;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .form-section-title i {
+                font-size: 1.2rem;
+            }
+
+        .toggle-register {
+            border: 1px dashed rgba(34, 74, 190, 0.35);
+            background: rgba(78, 115, 223, 0.08);
+            color: #224abe;
+        }
+
+            .toggle-register:hover {
+                background: rgba(78, 115, 223, 0.14);
+            }
+
+        .input-icon {
+            width: 42px;
+            text-align: center;
+        }
+
+        /* phần đăng ký */
+        #registerSection {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -61,13 +94,14 @@
             <p class="text-muted">Đăng nhập hệ thống của Đạt</p>
         </div>
 
+        <!-- ======= ĐĂNG NHẬP ======= -->
         <form asp-controller="Account" asp-action="Login" method="post">
             @Html.AntiForgeryToken() @* Thêm cái này cho bảo mật *@
 
             <div class="mb-3">
                 <label class="form-label">Tài khoản</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                    <span class="input-group-text input-icon"><i class="fas fa-user"></i></span>
                     <input type="text" name="username" class="form-control" placeholder="Tên đăng nhập..." required autofocus />
                 </div>
             </div>
@@ -75,7 +109,7 @@
             <div class="mb-4">
                 <label class="form-label">Mật khẩu</label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <span class="input-group-text input-icon"><i class="fas fa-lock"></i></span>
                     <input type="password" name="password" class="form-control" placeholder="********" required />
                 </div>
             </div>
@@ -83,7 +117,15 @@
             <button type="submit" class="btn btn-primary w-100 btn-login">
                 ĐĂNG NHẬP NGAY
             </button>
+
+            <div class="text-center mt-3">
+                <a href="#" class="small text-decoration-none" id="btnForgotPassword" style="color:#224abe;" onclick="return false;">
+                    <i class="fas fa-question-circle me-1"></i>Quên mật khẩu?
+                </a>
+            </div>
+
         </form>
+
 
         @if (ViewBag.Error != null)
         {
@@ -92,10 +134,148 @@
             </div>
         }
 
+        <div class="text-center mt-3">
+            <button id="btnShowRegister" class="btn btn-outline-primary toggle-register w-100">
+                <i class="fas fa-user-plus me-2"></i>
+                Chưa có tài khoản? Đăng ký
+            </button>
+        </div>
+
+        <!-- ======= ĐĂNG KÝ ======= -->
+        <div id="registerSection" class="mt-4">
+            <div class="form-section-title mb-3">
+                <i class="fas fa-user-edit"></i>
+                <span>ĐĂNG KÝ TÀI KHOẢN (User)</span>
+            </div>
+
+            <div id="registerAlert" class="mb-3" style="display:none;"></div>
+
+            <form id="registerForm">
+                <div class="mb-3">
+                    <label class="form-label">Họ và tên</label>
+                    <div class="input-group">
+                        <span class="input-group-text input-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" name="FullName" class="form-control" placeholder="Nguyễn Văn A" required />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text input-icon"><i class="fas fa-envelope"></i></span>
+                        <input type="email" name="Email" class="form-control" placeholder="example@gmail.com" required />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mật khẩu</label>
+                    <div class="input-group">
+                        <span class="input-group-text input-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" name="Password" class="form-control" placeholder="********" required />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại</label>
+                    <div class="input-group">
+                        <span class="input-group-text input-icon"><i class="fas fa-phone"></i></span>
+                        <input type="text" name="Phone" class="form-control" placeholder="0901xxxxxx" required />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Địa chỉ</label>
+                    <div class="input-group">
+                        <span class="input-group-text input-icon"><i class="fas fa-location-dot"></i></span>
+                        <input type="text" name="Address" class="form-control" placeholder="Địa chỉ của bạn" required />
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 btn-login">
+                        <i class="fas fa-paper-plane me-2"></i>ĐĂNG KÝ
+                    </button>
+                    <button type="button" id="btnHideRegister" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Ẩn
+                    </button>
+                </div>
+            </form>
+        </div>
+
         <div class="text-center mt-4">
             <small class="text-muted">MSSV: 2123110209 - Buổi 05</small>
         </div>
     </div>
 
+    <script>
+        (function () {
+            const btnShowRegister = document.getElementById('btnShowRegister');
+            const registerSection = document.getElementById('registerSection');
+            const btnHideRegister = document.getElementById('btnHideRegister');
+            const registerForm = document.getElementById('registerForm');
+            const registerAlert = document.getElementById('registerAlert');
+
+            function showAlert(type, msg) {
+                registerAlert.style.display = 'block';
+                registerAlert.className = 'alert ' + (type === 'success' ? 'alert-success' : 'alert-danger');
+                registerAlert.innerHTML = msg;
+            }
+
+            btnShowRegister?.addEventListener('click', function () {
+                registerSection.style.display = 'block';
+                this.blur();
+            });
+
+            btnHideRegister?.addEventListener('click', function () {
+                registerSection.style.display = 'none';
+                showAlert('danger', '');
+                registerAlert.style.display = 'none';
+            });
+
+            registerForm?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                registerAlert.style.display = 'none';
+
+                const formData = new FormData(registerForm);
+                const payload = {
+                    fullName: formData.get('FullName')?.toString().trim() || '',
+                    email: formData.get('Email')?.toString().trim() || '',
+                    password: formData.get('Password')?.toString().trim() || '',
+                    phone: formData.get('Phone')?.toString().trim() || '',
+                    address: formData.get('Address')?.toString().trim() || ''
+                };
+
+                // Lưu ý: API backend yêu cầu property dạng Pascal-case trong model,
+                // nhưng ASP.NET Core sẽ map case-insensitive. Vẫn an toàn.
+                try {
+                    const res = await fetch('/api/Auth/CustomerRegister', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json().catch(() => ({}));
+
+                    if (!res.ok) {
+                        const msg = data?.message || 'Đăng ký thất bại.';
+                        showAlert('danger', '<i class="fas fa-exclamation-triangle me-2"></i>' + msg);
+                        return;
+                    }
+
+                    showAlert('success', '<i class="fas fa-check-circle me-2"></i>' + (data?.message || 'Đăng ký thành công!'));
+
+                    // Có thể tự ẩn form để người dùng đăng nhập luôn
+                    setTimeout(function () {
+                        registerSection.style.display = 'none';
+                        registerAlert.style.display = 'none';
+                    }, 1200);
+                } catch (err) {
+                    showAlert('danger', '<i class="fas fa-exclamation-triangle me-2"></i>Lỗi hệ thống, vui lòng thử lại.');
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

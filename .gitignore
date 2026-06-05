@@ -19,3 +19,4 @@ build/
 "CMS.Data/obj/" 
 "CMS.Backend/bin/" 
 "CMS.Backend/obj/" 
+.aider*

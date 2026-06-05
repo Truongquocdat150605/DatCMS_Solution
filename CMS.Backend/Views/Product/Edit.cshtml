@@ -1,4 +1,4 @@
-﻿@model CMS.Data.Entities.Product
+@model CMS.Data.Entities.Product
 
 @{
     ViewData["Title"] = "Chỉnh sửa sản phẩm";
@@ -26,6 +26,12 @@
                         <label class="form-label font-weight-bold">Số lượng</label>
                         <input asp-for="StockQuantity" type="number" class="form-control" />
                     </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Danh mục sản phẩm</label>
+                    <select asp-for="CategoryProductId" class="form-select" asp-items="ViewBag.CategoryProductId"></select>
+                    <span asp-validation-for="CategoryProductId" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">

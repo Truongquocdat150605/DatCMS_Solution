@@ -10,6 +10,21 @@
         <a asp-action="Create" class="btn btn-primary">Thêm chi tiết</a>
     </div>
 
+    <!-- FORM TÌM KIẾM VÀ LỌC -->
+    <form method="get" asp-action="Index" class="mb-4 p-3 border rounded bg-light">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="number" name="orderId" value="@ViewBag.OrderIdFilter" class="form-control" placeholder="Lọc theo Mã đơn (ID)..." />
+            </div>
+            <div class="col-md-6">
+                <input type="text" name="productName" value="@ViewBag.ProductNameSearch" class="form-control" placeholder="Tìm kiếm theo Tên sản phẩm..." />
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-success w-100"><i class="bi bi-search"></i> Lọc dữ liệu</button>
+            </div>
+        </div>
+    </form>
+
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger">

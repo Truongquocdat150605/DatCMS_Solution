@@ -37,6 +37,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // Cấu hình CORS
 builder.Services.AddCors(options =>
+
 {
     options.AddPolicy("AllowReactFrontend", policy =>
     {
@@ -50,6 +51,12 @@ builder.Services.AddCors(options =>
 // Kết nối DB
 builder.Services.AddDbContext<CMSDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Đăng ký Memory Cache cho OTP
+builder.Services.AddMemoryCache();
+
+// Đăng ký Email Service
+builder.Services.AddScoped<CMS.Backend.Services.IEmailService, CMS.Backend.Services.EmailService>();
 
 builder.Services.AddAuthentication(options =>
 {

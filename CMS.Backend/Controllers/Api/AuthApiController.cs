@@ -7,6 +7,9 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 
+using Microsoft.Extensions.Caching.Memory;
+using CMS.Backend.Services;
+
 namespace CMS.Backend.Controllers.Api
 {
     [Route("api/Auth")]
@@ -14,10 +17,14 @@ namespace CMS.Backend.Controllers.Api
     public class AuthApiController : ControllerBase
     {
         private readonly CMSDbContext _context;
+        private readonly IMemoryCache _cache;
+        private readonly IEmailService _emailService;
 
-        public AuthApiController(CMSDbContext context)
+        public AuthApiController(CMSDbContext context, IMemoryCache cache, IEmailService emailService)
         {
             _context = context;
+            _cache = cache;
+            _emailService = emailService;
         }
 
         public class LoginRequest
@@ -157,6 +164,61 @@ namespace CMS.Backend.Controllers.Api
                 user.FullName,
                 user.Role
             });
+        }
+
+        public class OtpRequest
+        {
+            public string Email { get; set; } = string.Empty;
+        }
+
+        public class VerifyOtpRequest
+        {
+            public string Email { get; set; } = string.Empty;
+            public string Otp { get; set; } = string.Empty;
+        }
+
+        // POST: api/Auth/send-otp
+        [AllowAnonymous]
+        [HttpPost("send-otp")]
+        public async Task<IActionResult> SendOtp([FromBody] OtpRequest request)
+        {
+            var customerExists = _context.Customers.Any(c => c.Email == request.Email);
+            if (!customerExists)
+                return BadRequest(new { message = "Email này chưa được đăng ký trong hệ thống." });
+
+            string otpCode = new System.Random().Next(100000, 999999).ToString();
+
+            var cacheOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(System.TimeSpan.FromMinutes(5));
+            _cache.Set($"OTP_{request.Email}", otpCode, cacheOptions);
+
+            string subject = "Mã xác thực OTP - CMS PC Store";
+            string body = $"<h3>Xin chào,</h3><p>Mã xác thực OTP của bạn là: <strong style='color:red; font-size: 20px;'>{otpCode}</strong></p><p>Mã này sẽ hết hạn trong vòng 5 phút. Nếu bạn không yêu cầu mã này, vui lòng bỏ qua email.</p>";
+            
+            try
+            {
+                await _emailService.SendEmailAsync(request.Email, subject, body);
+                return Ok(new { success = true, message = "Đã gửi mã OTP đến email của bạn." });
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi gửi email: " + ex.Message });
+            }
+        }
+
+        // POST: api/Auth/verify-otp
+        [AllowAnonymous]
+        [HttpPost("verify-otp")]
+        public IActionResult VerifyOtp([FromBody] VerifyOtpRequest request)
+        {
+            if (_cache.TryGetValue($"OTP_{request.Email}", out string? savedOtp))
+            {
+                if (savedOtp == request.Otp)
+                {
+                    _cache.Remove($"OTP_{request.Email}");
+                    return Ok(new { success = true, message = "Xác thực OTP thành công." });
+                }
+            }
+            return BadRequest(new { message = "Mã OTP không hợp lệ hoặc đã hết hạn." });
         }
     }
 }
