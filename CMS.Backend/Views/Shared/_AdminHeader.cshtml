@@ -1,0 +1,67 @@
+@{
+    var isAuthenticated = User.Identity.IsAuthenticated;
+    var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "User";
+    var roleClass = userRole == "Admin" ? "role-admin" : (userRole == "Editor" ? "role-editor" : "role-user");
+}
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light navbar-admin border-bottom py-2 px-4">
+    <div class="container-fluid">
+        <button class="btn btn-outline-primary btn-sm" id="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        @if (isAuthenticated)
+        {
+            <!-- Search (tìm nhiều module) -->
+            <form class="d-flex align-items-center gap-2 ms-3" method="get" action="/">
+                <div class="input-group input-group-sm" style="width: 520px; max-width: 50vw;">
+                    <select class="form-select" name="searchScope" aria-label="Phạm vi tìm kiếm" style="max-width: 160px;">
+                        <option value="all" selected>Tất cả</option>
+                        <option value="product">Sản phẩm</option>
+                        <option value="post">Bài viết</option>
+                    </select>
+
+                    <input type="text" class="form-control" name="q" placeholder="Tìm theo tên/tiêu đề..." />
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        }
+
+        <div class="ms-auto d-flex align-items-center">
+            @if (isAuthenticated)
+            {
+                <!-- Avatar -->
+                <div class="avatar-circle me-2">
+                    @{ var firstChar = User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U"; }
+                    @firstChar
+                </div>
+
+                <div class="me-3">
+                    <span class="text-gray-600 small d-block">
+                        Xin chào, <b>@User.Identity.Name</b>
+                    </span>
+                    <span class="role-badge @roleClass">
+                        <i class="fas @(userRole == "Admin" ? "fa-crown" : "fa-user")"></i> @userRole
+                    </span>
+                </div>
+
+                <div class="topbar-divider d-none d-sm-block mx-2 border-start" style="height: 30px;"></div>
+
+                <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-danger"
+                   onclick="return confirm('Bạn có chắc chắn muốn đăng xuất không?')">
+                    <i class="fas fa-sign-out-alt"></i> Thoát
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                </a>
+            }
+        </div>
+    </div>
+</nav>
+

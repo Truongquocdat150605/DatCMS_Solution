@@ -1,9 +1,8 @@
-﻿@* * Người thực hiện: Trương Quốc Đạt
+@* * Người thực hiện: Trương Quốc Đạt
  * MSSV: 2123110209
  * Ngày thực hiện: 22/05/2026
  * Tên file: Create.cshtml
- * Mô tả: Giao diện thêm bài viết mới - Bài tập Buổi 03.
- * Chức năng: Cung cấp form nhập liệu để thêm bài viết vào CSDL, bao gồm chọn danh mục.
+ * Mô tả: Giao diện thêm bài viết mới - Có tích hợp CKEditor với Upload Ảnh.
  *@
 
 @model CMS.Data.Entities.Post
@@ -19,7 +18,7 @@
 
     <div class="row">
         <div class="col-md-8">
-            <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <form asp-action="Create" method="post" enctype="multipart/form-data" id="post-form">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="mb-3">
@@ -45,7 +44,8 @@
 
                 <div class="mb-3">
                     <label class="form-label font-weight-bold">Nội dung</label>
-                    <textarea asp-for="Content" class="form-control" rows="5"></textarea>
+                    @* CKEditor sẽ thay thế textarea này thành khung soạn thảo trực quan *@
+                    <textarea asp-for="Content" id="editor-content" class="form-control" rows="5"></textarea>
                     <span asp-validation-for="Content" class="text-danger"></span>
                 </div>
 
@@ -62,3 +62,61 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @* Load CKEditor 5 Classic từ CDN *@
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script>
+        // === CUSTOM UPLOAD ADAPTER ===
+        // Kết nối CKEditor với API Upload ảnh của Backend .NET
+        class MyUploadAdapter {
+            constructor(loader) {
+                this.loader = loader;
+                // Trỏ đến API UploadApiController vừa tạo
+                this.url = 'https://localhost:7048/api/UploadApi/ckeditor';
+            }
+
+            upload() {
+                return this.loader.file.then(file => new Promise((resolve, reject) => {
+                    const data = new FormData();
+                    data.append('upload', file); // Phải tên là 'upload' để khớp với C# [FromForm] IFormFile upload
+                    fetch(this.url, { method: 'POST', body: data })
+                        .then(res => res.json())
+                        .then(result => {
+                            if (result.error) return reject(result.error.message);
+                            resolve({ default: result.url }); // Trả về URL để CKEditor chèn ảnh vào nội dung
+                        })
+                        .catch(() => reject('Không thể upload ảnh!'));
+                }));
+            }
+
+            abort() {} // Huỷ upload nếu cần
+        }
+
+        // Đăng ký Plugin Upload Adapter với CKEditor
+        function MyUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => new MyUploadAdapter(loader);
+        }
+
+        // === KHỞI TẠO CKEDITOR ===
+        let editorInstance;
+        ClassicEditor
+            .create(document.querySelector('#editor-content'), {
+                extraPlugins: [MyUploadAdapterPlugin],
+                toolbar: [
+                    'heading', '|', 'bold', 'italic', 'underline', 'link',
+                    '|', 'bulletedList', 'numberedList',
+                    '|', 'imageUpload', 'blockQuote', 'insertTable',
+                    '|', 'undo', 'redo'
+                ]
+            })
+            .then(editor => {
+                editorInstance = editor;
+                // Đồng bộ nội dung CKEditor về textarea gốc TRƯỚC KHI SUBMIT để Razor nhận đúng Content
+                document.querySelector('#post-form').addEventListener('submit', () => {
+                    document.querySelector('#editor-content').value = editor.getData();
+                });
+            })
+            .catch(error => console.error('Lỗi khởi tạo CKEditor:', error));
+    </script>
+}

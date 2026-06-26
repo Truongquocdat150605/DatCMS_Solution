@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 
 using Microsoft.Extensions.Caching.Memory;
 using CMS.Backend.Services;
+using CMS.Backend.Helpers;
 
 namespace CMS.Backend.Controllers.Api
 {
@@ -48,14 +49,48 @@ namespace CMS.Backend.Controllers.Api
             public string Password { get; set; } = string.Empty;
         }
 
+        public class ChangePasswordRequest
+        {
+            public string Email { get; set; } = string.Empty;
+            public string CurrentPassword { get; set; } = string.Empty;
+            public string NewPassword { get; set; } = string.Empty;
+        }
+
+        public class ResetPasswordRequest
+        {
+            public string Email { get; set; } = string.Empty;
+            public string Otp { get; set; } = string.Empty;
+            public string NewPassword { get; set; } = string.Empty;
+        }
+
+        public class UpdateCustomerProfileRequest
+        {
+            public int CustomerId { get; set; }
+            public string FullName { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+            public string Phone { get; set; } = string.Empty;
+            public string Address { get; set; } = string.Empty;
+        }
+
+        public class UpdateUserProfileRequest
+        {
+            public int UserId { get; set; }
+            public string FullName { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+        }
+
+        private static bool PasswordMatches(string rawPassword, string storedPassword)
+        {
+            return storedPassword == rawPassword || PasswordHelper.VerifyPassword(rawPassword, storedPassword);
+        }
+
         // POST: api/AuthApi/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = _context.Users.FirstOrDefault(u =>
-                u.Username == request.Username && u.PasswordHash == request.Password);
+            var user = _context.Users.FirstOrDefault(u => u.Username == request.Username);
 
-            if (user == null)
+            if (user == null || !PasswordMatches(request.Password, user.PasswordHash))
                 return Unauthorized(new { message = "Sai tên đăng nhập hoặc mật khẩu." });
 
             var role = (user.Role ?? string.Empty).Trim();
@@ -106,7 +141,7 @@ namespace CMS.Backend.Controllers.Api
             {
                 FullName = request.FullName,
                 Email = request.Email,
-                Password = request.Password, // Lưu thô theo yêu cầu
+                Password = PasswordHelper.HashPassword(request.Password),
                 Phone = request.Phone,
                 Address = request.Address
             };
@@ -117,14 +152,15 @@ namespace CMS.Backend.Controllers.Api
             return Ok(new { success = true, message = "Đăng ký thành công!", customerId = customer.Id });
         }
 
+
         // POST: api/AuthApi/CustomerLogin
         [AllowAnonymous]
         [HttpPost("CustomerLogin")]
         public async Task<IActionResult> CustomerLogin([FromBody] CustomerLoginRequest request)
         {
-            var customer = _context.Customers.FirstOrDefault(c => c.Email == request.Email && c.Password == request.Password);
-            
-            if (customer == null)
+            var customer = _context.Customers.FirstOrDefault(c => c.Email == request.Email);
+
+            if (customer == null || !PasswordHelper.VerifyPassword(request.Password, customer.Password))
                 return Unauthorized(new { message = "Sai email hoặc mật khẩu." });
 
             return Ok(new
@@ -135,6 +171,30 @@ namespace CMS.Backend.Controllers.Api
                 fullName = customer.FullName
             });
         }
+
+        // POST: api/Auth/change-password
+        [AllowAnonymous]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.CurrentPassword) ||
+                string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                return BadRequest(new { message = "Thiếu thông tin đổi mật khẩu." });
+            }
+
+            var customer = _context.Customers.FirstOrDefault(c => c.Email == request.Email);
+
+            if (customer == null || !PasswordHelper.VerifyPassword(request.CurrentPassword, customer.Password))
+                return Unauthorized(new { message = "Email hoặc mật khẩu hiện tại không đúng." });
+
+            customer.Password = PasswordHelper.HashPassword(request.NewPassword);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Đổi mật khẩu thành công." });
+        }
+
 
         // POST: api/AuthApi/logout
         [HttpPost("logout")]
@@ -205,6 +265,33 @@ namespace CMS.Backend.Controllers.Api
             }
         }
 
+        // POST: api/Auth/reset-password
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.Otp) ||
+                string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                return BadRequest(new { message = "Thiếu thông tin đặt lại mật khẩu." });
+            }
+
+            if (!_cache.TryGetValue($"OTP_{request.Email}", out string? savedOtp) || savedOtp != request.Otp)
+                return BadRequest(new { message = "Mã OTP không hợp lệ hoặc đã hết hạn." });
+
+            var customer = _context.Customers.FirstOrDefault(c => c.Email == request.Email);
+            if (customer == null)
+                return NotFound(new { message = "Không tìm thấy khách hàng." });
+
+            customer.Password = request.NewPassword;
+            await _context.SaveChangesAsync();
+
+            _cache.Remove($"OTP_{request.Email}");
+
+            return Ok(new { success = true, message = "Đặt lại mật khẩu thành công." });
+        }
+
         // POST: api/Auth/verify-otp
         [AllowAnonymous]
         [HttpPost("verify-otp")]
@@ -219,6 +306,58 @@ namespace CMS.Backend.Controllers.Api
                 }
             }
             return BadRequest(new { message = "Mã OTP không hợp lệ hoặc đã hết hạn." });
+        }
+        [AllowAnonymous]
+        [HttpGet("customer-profile")]
+        public async Task<IActionResult> GetCustomerProfile(int customerId)
+        {
+            var customer = await _context.Customers.FindAsync(customerId);
+            if (customer == null)
+                return NotFound();
+
+            return Ok(new
+            {
+                customer.Id,
+                customer.FullName,
+                customer.Email,
+                customer.Phone,
+                customer.Address,
+                CreatedAt = DateTime.Now
+            });
+        }
+
+        [AllowAnonymous]
+        [HttpPut("update-customer-profile")]
+        public async Task<IActionResult> UpdateCustomerProfile([FromBody] UpdateCustomerProfileRequest request)
+        {
+            var customer = await _context.Customers.FindAsync(request.CustomerId);
+            if (customer == null)
+                return NotFound(new { message = "Không tìm thấy khách hàng." });
+
+            customer.FullName = request.FullName;
+            customer.Email = request.Email;
+            customer.Phone = request.Phone;
+            customer.Address = request.Address;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Cập nhật hồ sơ thành công.", data = customer });
+        }
+
+        [AllowAnonymous]
+        [HttpPut("update-user-profile")]
+        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateUserProfileRequest request)
+        {
+            var user = await _context.Users.FindAsync(request.UserId);
+            if (user == null)
+                return NotFound(new { message = "Không tìm thấy quản trị viên." });
+
+            user.FullName = request.FullName;
+            user.Email = request.Email;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Cập nhật hồ sơ thành công.", data = new { user.Id, user.Username, user.FullName, user.Email, user.Role } });
         }
     }
 }

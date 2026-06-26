@@ -12,10 +12,12 @@ namespace CMS.Backend.Controllers
     public class OrderController : Controller
     {
         private readonly CMSDbContext _context;
+        private readonly CMS.Backend.Services.IEmailService _emailService;
 
-        public OrderController(CMSDbContext context)
+        public OrderController(CMSDbContext context, CMS.Backend.Services.IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<IActionResult> Index(string searchString, int? status)
@@ -38,6 +40,22 @@ namespace CMS.Backend.Controllers
 
             // Mặc định sắp xếp đơn hàng mới nhất lên đầu
             return View(await orders.OrderByDescending(o => o.OrderDate).ToListAsync());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (order == null) return NotFound();
+
+            return View(order);
         }
 
         [HttpGet]
@@ -87,8 +105,34 @@ namespace CMS.Backend.Controllers
 
             if (ModelState.IsValid)
             {
+                // Lấy đơn hàng cũ từ DB (chưa Tracking) để so sánh trạng thái
+                var oldOrder = await _context.Orders.AsNoTracking()
+                                    .Include(o => o.Customer)
+                                    .FirstOrDefaultAsync(o => o.Id == id);
+                                    
                 _context.Update(order);
                 await _context.SaveChangesAsync();
+
+                // Gửi email nếu trạng thái thay đổi
+                if (oldOrder != null && oldOrder.Status != order.Status && oldOrder.Customer != null && !string.IsNullOrEmpty(oldOrder.Customer.Email))
+                {
+                    string statusText = order.Status == 1 ? "Đang giao hàng" : (order.Status == 2 ? "Đã giao thành công" : "Chờ duyệt");
+                    string emailContent = $@"
+                        <h2>Xin chào {oldOrder.Customer.FullName},</h2>
+                        <p>Đơn hàng <strong>#{order.Id}</strong> của bạn vừa được cập nhật trạng thái.</p>
+                        <p>Trạng thái hiện tại: <strong style='color: blue;'>{statusText}</strong></p>
+                        <p>Cảm ơn bạn đã mua sắm tại CMS Store!</p>
+                    ";
+                    try
+                    {
+                        await _emailService.SendEmailAsync(oldOrder.Customer.Email, $"Cập nhật trạng thái đơn hàng #{order.Id}", emailContent);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        System.Console.WriteLine("Lỗi gửi email cập nhật đơn hàng: " + ex.Message);
+                    }
+                }
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -96,7 +140,35 @@ namespace CMS.Backend.Controllers
             return View(order);
         }
 
-        // ✅ CHỈ ADMIN MỚI ĐƯỢC XÓA
+        [HttpPost]
+        [Authorize(Roles = "Admin, Editor")]
+        public async Task<IActionResult> DeleteDetail(int detailId, int orderId)
+        {
+            var detail = await _context.OrderDetails.FindAsync(detailId);
+            if (detail != null)
+            {
+                _context.OrderDetails.Remove(detail);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa 1 sản phẩm khỏi đơn hàng thành công!";
+            }
+            return RedirectToAction(nameof(Details), new { id = orderId });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin, Editor")]
+        public async Task<IActionResult> ClearAllDetails(int orderId)
+        {
+            var details = await _context.OrderDetails.Where(od => od.OrderId == orderId).ToListAsync();
+            if (details.Any())
+            {
+                _context.OrderDetails.RemoveRange(details);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa TẤT CẢ sản phẩm khỏi đơn hàng!";
+            }
+            return RedirectToAction(nameof(Details), new { id = orderId });
+        }
+
+        // ✅ CHỈ ADMIN MỚI ĐƯỢC XÓA ĐƠN HÀNG GỐC
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {

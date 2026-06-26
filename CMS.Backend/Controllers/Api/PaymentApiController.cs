@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PayOS;
 using PayOS.Models;
+using PayOS.Models.V2.PaymentRequests;
 using PayOS.Models.Webhooks;
 using Stripe;
 using Stripe.Checkout;
@@ -63,7 +64,7 @@ namespace CMS.Backend.Controllers.Api
                 Amount = (int)totalAmount,
                 Description = $"Don hang #{orderId}",
                 ReturnUrl = $"http://localhost:3000/payment-success?orderId={orderId}&method=PayOS",
-                CancelUrl = "http://localhost:3000/cart"
+                CancelUrl = $"http://localhost:3000/payment-cancel?orderId={orderId}"
             };
 
             var paymentLink = await client.PaymentRequests.CreateAsync(request);
@@ -172,7 +173,7 @@ namespace CMS.Backend.Controllers.Api
                 LineItems = lineItems,
                 Mode = "payment",
                 SuccessUrl = $"http://localhost:3000/payment-success?orderId={orderId}&method=Stripe&session_id={{CHECKOUT_SESSION_ID}}",
-                CancelUrl = "http://localhost:3000/cart",
+                CancelUrl = $"http://localhost:3000/payment-cancel?orderId={orderId}",
                 Metadata = new Dictionary<string, string> { { "orderId", orderId.ToString() } }
             };
 

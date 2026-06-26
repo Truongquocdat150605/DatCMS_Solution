@@ -1,4 +1,4 @@
-﻿/* * Tên file: CMSDbContext.cs
+/* * Tên file: CMSDbContext.cs
  * Trương Quốc Dat
  * MSSV: 2123110209
  * Ngày tạo: 15/05/2026  
@@ -27,5 +27,15 @@ namespace CMS.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<CategoryProduct> CategoryProducts { get; set; }
+        public DbSet<Advertisement> Advertisements { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Product>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+        }
     }
 }

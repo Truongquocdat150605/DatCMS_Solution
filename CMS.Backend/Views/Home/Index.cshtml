@@ -1,22 +1,11 @@
 ﻿@{
     ViewData["Title"] = "Bảng điều khiển - CMS Admin";
 
-    // Lấy thông tin người dùng từ Claims (đã đăng nhập)
     var fullName = User.FindFirst("FullName")?.Value ?? User.Identity?.Name ?? "Quản trị viên";
     var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "User";
 }
 
-@* 
- * Tên sinh viên: Trương Quốc Đạt
- * MSSV: 2123110209
- * Lớp: An ninh mạng (Cyber Security)
- * Chức năng: Dashboard tổng quan hệ thống CMS
- * Ngày tạo: 2026
- *@
-
-<!-- CSS tùy chỉnh -->
 <style>
-    /* Gradient cho header */
     .bg-gradient-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
@@ -33,7 +22,14 @@
         background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
     }
 
-    /* Hiệu ứng card hover */
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .bg-gradient-dark {
+        background: linear-gradient(135deg, #434343 0%, #000000 100%);
+    }
+
     .stat-card, .quick-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         cursor: pointer;
@@ -44,21 +40,9 @@
             box-shadow: 0 1rem 2rem rgba(0,0,0,.15) !important;
         }
 
-    /* Number counter animation */
     .counter-number {
         font-size: 2.2rem;
         font-weight: 700;
-    }
-
-    /* Stretched link cho thẻ */
-    .stretched-link::after {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 1;
-        content: "";
     }
 
     .stat-icon {
@@ -69,13 +53,20 @@
         justify-content: center;
         border-radius: 12px;
     }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin: 20px 0;
+    }
 </style>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <div class="container-fluid px-4">
 
-    <!-- =========================== -->
-    <!-- HEADER WELCOME              -->
-    <!-- =========================== -->
+    <!-- HEADER WELCOME -->
     <div class="row mt-4 mb-5">
         <div class="col-12">
             <div class="card bg-gradient-primary text-white shadow-lg border-0">
@@ -101,7 +92,7 @@
                         <div class="d-none d-md-block">
                             <div class="text-center">
                                 <i class="bi bi-bar-chart-steps" style="font-size: 85px; opacity: 0.6;"></i>
-                                <small class="d-block mt-2 opacity-75">CMS v1.0</small>
+                                <small class="d-block mt-2 opacity-75">CMS v2.0</small>
                             </div>
                         </div>
                     </div>
@@ -110,26 +101,18 @@
         </div>
     </div>
 
-    <!-- =========================== -->
-    <!-- THỐNG KÊ NHANH              -->
-    <!-- =========================== -->
+    <!-- THỐNG KÊ MỞ RỘNG (8 cards) -->
     <div class="row g-4 mb-5">
         <div class="col-xl-3 col-md-6">
             <div class="card bg-primary text-white border-0 shadow stat-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-white-50 small text-uppercase fw-bold">
-                                <i class="bi bi-box-seam me-1"></i>SẢN PHẨM
-                            </span>
+                            <span class="text-white-50 small text-uppercase fw-bold"><i class="bi bi-box-seam me-1"></i>SẢN PHẨM</span>
                             <h2 class="mb-0 fw-bold mt-2 counter-number">@ViewBag.TotalProducts</h2>
-                            <span class="small opacity-75">
-                                <i class="bi bi-archive me-1"></i>Trong kho
-                            </span>
+                            <span class="small opacity-75"><i class="bi bi-archive me-1"></i>Trong kho</span>
                         </div>
-                        <div class="stat-icon bg-white bg-opacity-20">
-                            <i class="bi bi-box-seam fs-1"></i>
-                        </div>
+                        <div class="stat-icon bg-white bg-opacity-20"><i class="bi bi-box-seam fs-1"></i></div>
                     </div>
                     <a asp-controller="Product" asp-action="Index" class="stretched-link"></a>
                 </div>
@@ -141,17 +124,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-white-50 small text-uppercase fw-bold">
-                                <i class="bi bi-file-post me-1"></i>BÀI VIẾT
-                            </span>
+                            <span class="text-white-50 small text-uppercase fw-bold"><i class="bi bi-file-post me-1"></i>BÀI VIẾT</span>
                             <h2 class="mb-0 fw-bold mt-2 counter-number">@ViewBag.TotalPosts</h2>
-                            <span class="small opacity-75">
-                                <i class="bi bi-newspaper me-1"></i>Đã đăng
-                            </span>
+                            <span class="small opacity-75"><i class="bi bi-newspaper me-1"></i>Đã đăng</span>
                         </div>
-                        <div class="stat-icon bg-white bg-opacity-20">
-                            <i class="bi bi-file-post fs-1"></i>
-                        </div>
+                        <div class="stat-icon bg-white bg-opacity-20"><i class="bi bi-file-post fs-1"></i></div>
                     </div>
                     <a asp-controller="Post" asp-action="Index" class="stretched-link"></a>
                 </div>
@@ -163,17 +140,11 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-white-50 small text-uppercase fw-bold">
-                                <i class="bi bi-people me-1"></i>KHÁCH HÀNG
-                            </span>
+                            <span class="text-white-50 small text-uppercase fw-bold"><i class="bi bi-people me-1"></i>KHÁCH HÀNG</span>
                             <h2 class="mb-0 fw-bold mt-2 counter-number">@ViewBag.TotalCustomers</h2>
-                            <span class="small opacity-75">
-                                <i class="bi bi-person-badge me-1"></i>Đã đăng ký
-                            </span>
+                            <span class="small opacity-75"><i class="bi bi-person-badge me-1"></i>Đã đăng ký</span>
                         </div>
-                        <div class="stat-icon bg-white bg-opacity-20">
-                            <i class="bi bi-people fs-1"></i>
-                        </div>
+                        <div class="stat-icon bg-white bg-opacity-20"><i class="bi bi-people fs-1"></i></div>
                     </div>
                     <a asp-controller="Customer" asp-action="Index" class="stretched-link"></a>
                 </div>
@@ -185,227 +156,169 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-dark-50 small text-uppercase fw-bold">
-                                <i class="bi bi-grid-3x3-gap-fill me-1"></i>DANH MỤC
-                            </span>
+                            <span class="text-dark-50 small text-uppercase fw-bold"><i class="bi bi-grid-3x3-gap-fill me-1"></i>DANH MỤC</span>
                             <h2 class="mb-0 fw-bold mt-2 counter-number">@ViewBag.TotalCategories</h2>
-                            <span class="small opacity-75">
-                                <i class="bi bi-tags me-1"></i>Phân loại
-                            </span>
+                            <span class="small opacity-75"><i class="bi bi-tags me-1"></i>Phân loại</span>
                         </div>
-                        <div class="stat-icon bg-dark bg-opacity-10">
-                            <i class="bi bi-grid-3x3-gap-fill fs-1"></i>
-                        </div>
+                        <div class="stat-icon bg-dark bg-opacity-10"><i class="bi bi-grid-3x3-gap-fill fs-1"></i></div>
                     </div>
                     <a asp-controller="CategoryProduct" asp-action="Index" class="stretched-link"></a>
                 </div>
             </div>
         </div>
+
+        <!-- 4 cards mới -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-gradient-danger text-white border-0 shadow stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-white-50 small text-uppercase fw-bold"><i class="bi bi-cash-stack me-1"></i>DOANH THU HÔM NAY</span>
+                            <h2 class="mb-0 fw-bold mt-2">@ViewBag.TodayRevenue?.ToString("N0")₫</h2>
+                            <span class="small opacity-75"><i class="bi bi-calendar-day me-1"></i>@DateTime.Now.ToString("dd/MM")</span>
+                        </div>
+                        <div class="stat-icon bg-white bg-opacity-20"><i class="bi bi-cash-stack fs-1"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-gradient-info text-white border-0 shadow stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-white-50 small text-uppercase fw-bold"><i class="bi bi-graph-up me-1"></i>DOANH THU THÁNG</span>
+                            <h2 class="mb-0 fw-bold mt-2">@ViewBag.MonthRevenue?.ToString("N0")₫</h2>
+                            <span class="small opacity-75"><i class="bi bi-calendar-month me-1"></i>Tháng @DateTime.Now.Month</span>
+                        </div>
+                        <div class="stat-icon bg-white bg-opacity-20"><i class="bi bi-graph-up fs-1"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-gradient-warning text-dark border-0 shadow stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-dark-50 small text-uppercase fw-bold"><i class="bi bi-truck me-1"></i>ĐƠN HÀNG CHỜ</span>
+                            <h2 class="mb-0 fw-bold mt-2 counter-number">@ViewBag.PendingOrders</h2>
+                            <span class="small opacity-75"><i class="bi bi-clock me-1"></i>Cần xử lý</span>
+                        </div>
+                        <div class="stat-icon bg-dark bg-opacity-10"><i class="bi bi-truck fs-1"></i></div>
+                    </div>
+                    <a asp-controller="Order" asp-action="Index" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-gradient-dark text-white border-0 shadow stat-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-white-50 small text-uppercase fw-bold"><i class="bi bi-exclamation-triangle me-1"></i>TỒN KHO THẤP</span>
+                            <h2 class="mb-0 fw-bold mt-2 counter-number">@ViewBag.LowStockProducts</h2>
+                            <span class="small opacity-75"><i class="bi bi-box-seam me-1"></i>Số lượng < 5</span>
+                        </div>
+                        <div class="stat-icon bg-white bg-opacity-20"><i class="bi bi-exclamation-triangle fs-1"></i></div>
+                    </div>
+                    <a asp-controller="Product" asp-action="Index" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- =========================== -->
-    <!-- THẺ CHỨC NĂNG NHANH         -->
-    <!-- =========================== -->
+    <!-- BIỂU ĐỒ -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-bar-chart text-primary me-2"></i>Doanh thu 7 ngày qua</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-pie-chart text-success me-2"></i>Tỷ lệ đơn hàng theo trạng thái</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- THẺ CHỨC NĂNG NHANH -->
     <div class="row g-4 mb-5">
         <div class="col-md-6 col-lg-3">
             <div class="card bg-gradient-primary text-white border-0 shadow quick-card h-100">
                 <div class="card-body text-center p-4">
                     <i class="bi bi-plus-circle fs-1 mb-3 d-block"></i>
                     <h5 class="card-title fw-bold">Thêm sản phẩm</h5>
-                    <p class="card-text small opacity-75 mb-3">Thêm sản phẩm mới vào kho hàng</p>
-                    <a asp-controller="Product" asp-action="Create" class="btn btn-light btn-sm px-4">
-                        Tạo mới <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
+                    <a asp-controller="Product" asp-action="Create" class="btn btn-light btn-sm px-4">Tạo mới <i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
-
         <div class="col-md-6 col-lg-3">
             <div class="card bg-gradient-success text-dark border-0 shadow quick-card h-100">
                 <div class="card-body text-center p-4">
                     <i class="bi bi-file-earmark-plus fs-1 mb-3 d-block"></i>
                     <h5 class="card-title fw-bold">Viết bài mới</h5>
-                    <p class="card-text small opacity-75 mb-3">Đăng tin tức mới lên website</p>
-                    <a asp-controller="Post" asp-action="Create" class="btn btn-dark btn-sm px-4">
-                        Tạo mới <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
+                    <a asp-controller="Post" asp-action="Create" class="btn btn-dark btn-sm px-4">Tạo mới <i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
-
         <div class="col-md-6 col-lg-3">
             <div class="card bg-gradient-danger text-white border-0 shadow quick-card h-100">
                 <div class="card-body text-center p-4">
                     <i class="bi bi-person-plus fs-1 mb-3 d-block"></i>
                     <h5 class="card-title fw-bold">Thêm khách hàng</h5>
-                    <p class="card-text small opacity-75 mb-3">Quản lý danh sách khách hàng mới</p>
-                    <a asp-controller="Customer" asp-action="Create" class="btn btn-light btn-sm px-4">
-                        Tạo mới <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
+                    <a asp-controller="Customer" asp-action="Create" class="btn btn-light btn-sm px-4">Tạo mới <i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
-
         <div class="col-md-6 col-lg-3">
             <div class="card bg-gradient-warning text-dark border-0 shadow quick-card h-100">
                 <div class="card-body text-center p-4">
                     <i class="bi bi-tags fs-1 mb-3 d-block"></i>
                     <h5 class="card-title fw-bold">Quản lý danh mục</h5>
-                    <p class="card-text small opacity-75 mb-3">Sắp xếp phân loại sản phẩm</p>
-                    <a asp-controller="CategoryProduct" asp-action="Create" class="btn btn-dark btn-sm px-4">
-                        Tạo mới <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
+                    <a asp-controller="CategoryProduct" asp-action="Create" class="btn btn-dark btn-sm px-4">Tạo mới <i class="bi bi-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- =========================== -->
-    <!-- THÔNG TIN CHI TIẾT          -->
-    <!-- =========================== -->
-    <div class="row mb-4">
-        <!-- Bài viết mới nhất -->
-        <div class="col-lg-6 mb-4">
-            <div class="card border-0 shadow h-100">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="bi bi-clock-history text-primary me-2"></i>Bài viết mới nhất
-                    </h5>
-                    <a asp-controller="Post" asp-action="Index" class="btn btn-sm btn-outline-primary">
-                        Xem tất cả <i class="bi bi-chevron-right ms-1"></i>
-                    </a>
-                </div>
-                <div class="card-body">
-                    @if (ViewBag.RecentPosts != null && ViewBag.RecentPosts.Count > 0)
-                    {
-                        <div class="list-group list-group-flush">
-                            @foreach (var post in ViewBag.RecentPosts)
-                            {
-                                <div class="list-group-item bg-transparent px-0">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <a asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id"
-                                               class="text-decoration-none fw-bold text-dark">
-                                                @(post.Title.Length > 50 ? post.Title.Substring(0, 50) + "..." : post.Title)
-                                            </a>
-                                            <br />
-                                            <small class="text-muted">
-                                                <i class="bi bi-folder me-1"></i>@(post.Category?.Name ?? "Chưa phân loại")
-                                            </small>
-                                        </div>
-                                        <small class="text-muted">@post.CreatedDate.ToString("dd/MM/yyyy")</small>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted text-center py-3">Chưa có bài viết nào</p>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <!-- Sản phẩm mới nhất -->
-        <div class="col-lg-6 mb-4">
-            <div class="card border-0 shadow h-100">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="bi bi-box-seam text-success me-2"></i>Sản phẩm mới nhất
-                    </h5>
-                    <a asp-controller="Product" asp-action="Index" class="btn btn-sm btn-outline-success">
-                        Xem tất cả <i class="bi bi-chevron-right ms-1"></i>
-                    </a>
-                </div>
-                <div class="card-body">
-                    @if (ViewBag.RecentProducts != null && ViewBag.RecentProducts.Count > 0)
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Tên sản phẩm</th>
-                                        <th>Danh mục</th>
-                                        <th class="text-end">Giá</th>
-                                        <th class="text-center">Số lượng</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var product in ViewBag.RecentProducts)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <a asp-controller="Product" asp-action="Edit" asp-route-id="@product.Id"
-                                                   class="text-decoration-none fw-bold">
-                                                    @(product.Name.Length > 30 ? product.Name.Substring(0, 30) + "..." : product.Name)
-                                                </a>
-                                            </td>
-                                            <td>@(product.CategoryProduct?.Name ?? "Chưa phân loại")</td>
-                                            <td class="text-end text-primary fw-bold">@product.Price.ToString("N0")đ</td>
-                                            <td class="text-center">
-                                                <span class="badge @(product.StockQuantity > 0 ? "bg-success" : "bg-danger")">
-                                                    @product.StockQuantity
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted text-center py-3">Chưa có sản phẩm nào</p>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- =========================== -->
-    <!-- THÔNG TIN SINH VIÊN         -->
-    <!-- =========================== -->
+    <!-- THÔNG TIN SINH VIÊN -->
     <div class="row">
         <div class="col-12">
             <div class="card border-0 shadow mb-4">
                 <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="bi bi-info-circle-fill text-primary me-2"></i>Thông tin đồ án
-                    </h5>
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-info-circle-fill text-primary me-2"></i>Thông tin đồ án</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <table class="table table-borderless mb-0">
-                                <tr>
-                                    <td style="width: 140px;"><i class="bi bi-person-vcard text-primary me-2"></i> <strong>Họ tên:</strong></td>
-                                    <td>Trương Quốc Đạt</td>
-                                </tr>
-                                <tr>
-                                    <td><i class="bi bi-qr-code text-primary me-2"></i> <strong>MSSV:</strong></td>
-                                    <td><span class="badge bg-secondary">2123110209</span></td>
-                                </tr>
-                                <tr>
-                                    <td><i class="bi bi-mortarboard text-primary me-2"></i> <strong>Chuyên ngành:</strong></td>
-                                    <td>An ninh mạng (Cyber Security)</td>
-                                </tr>
+                                <tr><td style="width: 140px;"><i class="bi bi-person-vcard text-primary me-2"></i> <strong>Họ tên:</strong></td><td>Trương Quốc Đạt</td></tr>
+                                <tr><td><i class="bi bi-qr-code text-primary me-2"></i> <strong>MSSV:</strong></td><td><span class="badge bg-secondary">2123110209</span></td></tr>
+                                <tr><td><i class="bi bi-mortarboard text-primary me-2"></i> <strong>Chuyên ngành:</strong></td><td>An ninh mạng (Cyber Security)</td></tr>
                             </table>
                         </div>
                         <div class="col-md-6">
                             <table class="table table-borderless mb-0">
-                                <tr>
-                                    <td style="width: 140px;"><i class="bi bi-calendar-event text-primary me-2"></i> <strong>Niên khóa:</strong></td>
-                                    <td>2023 - 2026</td>
-                                </tr>
-                                <tr>
-                                    <td><i class="bi bi-globe2 text-primary me-2"></i> <strong>Hệ thống:</strong></td>
-                                    <td><span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>Đang hoạt động</span></td>
-                                </tr>
-                                <tr>
-                                    <td><i class="bi bi-database text-primary me-2"></i> <strong>Công nghệ:</strong></td>
-                                    <td>ASP.NET Core | SQL Server | Bootstrap 5</td>
-                                </tr>
+                                <tr><td style="width: 140px;"><i class="bi bi-calendar-event text-primary me-2"></i> <strong>Niên khóa:</strong></td><td>2023 - 2026</td></tr>
+                                <tr><td><i class="bi bi-database text-primary me-2"></i> <strong>Công nghệ:</strong></td><td>ASP.NET Core | SQL Server | Bootstrap 5 | Chart.js</td></tr>
                             </table>
                         </div>
                     </div>
@@ -415,10 +328,9 @@
     </div>
 </div>
 
-<!-- Script nhỏ để đếm số animation -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Hiệu ứng đếm số cho các card thống kê (nếu muốn)
+        // Animation counter
         const counters = document.querySelectorAll('.counter-number');
         counters.forEach(counter => {
             const target = parseInt(counter.innerText);
@@ -434,6 +346,48 @@
                         counter.innerText = current;
                     }
                 }, 20);
+            }
+        });
+
+        // Biểu đồ doanh thu 7 ngày
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(ViewBag.Last7DaysLabels ?? "['T2','T3','T4','T5','T6','T7','CN']"),
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: @Html.Raw(ViewBag.Last7DaysRevenue ?? "[0,0,0,0,0,0,0]"),
+                    backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                    borderColor: '#667eea',
+                    borderWidth: 1,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: function(ctx) { return ctx.raw.toLocaleString() + '₫'; } } } },
+                scales: { y: { ticks: { callback: function(value) { return value.toLocaleString() + '₫'; } } } }
+            }
+        });
+
+        // Biểu đồ trạng thái đơn hàng
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Chờ duyệt', 'Đang giao', 'Hoàn thành'],
+                datasets: [{
+                    data: @Html.Raw(ViewBag.OrderStatusCounts ?? "[0,0,0]"),
+                    backgroundColor: ['#f6d365', '#4facfe', '#84fab0'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: function(ctx) { return ctx.label + ': ' + ctx.raw + ' đơn'; } } } }
             }
         });
     });

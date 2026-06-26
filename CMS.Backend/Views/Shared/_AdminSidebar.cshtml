@@ -1,0 +1,73 @@
+@{
+    var isAdmin = User.IsInRole("Admin");
+    var isEditor = User.IsInRole("Editor");
+    var isAuthenticated = User.Identity.IsAuthenticated;
+}
+
+<!-- Sidebar -->
+<div id="sidebar-wrapper">
+    <div class="sidebar-heading border-bottom">
+        <i class="fas fa-user-shield"></i> ADMIN CMS
+    </div>
+    <div class="list-group list-group-flush">
+        @if (isAuthenticated)
+        {
+            <!-- Dashboard - Ai cũng thấy -->
+            <a asp-controller="Home" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+
+            <!-- ========== QUẢN LÝ NỘI DUNG ========== -->
+            <div class="px-3 py-2 small text-uppercase text-white-50 mt-2">Quản lý nội dung</div>
+
+            <a asp-controller="Category" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="fas fa-folder"></i> Danh mục bài viết
+            </a>
+            <a asp-controller="Post" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="fas fa-newspaper"></i> Bài viết
+            </a>
+
+            <!-- ========== QUẢN LÝ BÁN HÀNG ========== -->
+            <div class="px-3 py-2 small text-uppercase text-white-50 mt-2">Quản lý bán hàng</div>
+
+            <a asp-controller="CategoryProduct" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="fas fa-tags"></i> Loại sản phẩm
+            </a>
+            <a asp-controller="Advertisement" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="fas fa-ad"></i> Quản lý Banner
+            </a>
+            <a asp-controller="Product" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="fas fa-box"></i> Sản phẩm
+            </a>
+            <a asp-controller="Order" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="fas fa-shopping-cart"></i> Đơn hàng
+            </a>
+            <a asp-controller="OrderDetail" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="fas fa-list-alt"></i> Chi tiết đơn hàng
+            </a>
+
+            <!-- ========== HỆ THỐNG ========== -->
+            <div class="px-3 py-2 small text-uppercase text-white-50 mt-2">Hệ thống</div>
+
+            <a asp-controller="Customer" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="fas fa-users"></i> Khách hàng
+            </a>
+
+            @* CHỈ ADMIN MỚI THẤY MENU THÀNH VIÊN *@
+            @if (isAdmin)
+            {
+                <a asp-controller="User" asp-action="Index" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user-cog"></i> Thành viên
+                </a>
+            }
+        }
+        else
+        {
+            <div class="text-center text-white-50 p-4">
+                <i class="fas fa-lock fa-2x mb-2 d-block"></i>
+                <small>Vui lòng đăng nhập</small>
+            </div>
+        }
+    </div>
+</div>
+

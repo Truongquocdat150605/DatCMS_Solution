@@ -1,0 +1,66 @@
+@model CMS.Data.Entities.Advertisement
+
+@{
+    ViewData["Title"] = "Sửa Banner";
+}
+
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-warning">
+        <h4 class="mb-0"><i class="bi bi-pencil-square"></i> Chỉnh sửa Banner/Quảng cáo</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-bold">Tiêu đề Banner <span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ImageUrl" class="form-label fw-bold">Đường dẫn Hình ảnh (URL) <span class="text-danger">*</span></label>
+                        <input asp-for="ImageUrl" class="form-control" />
+                        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                        <div class="mt-2">
+                            <img src="@(Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : "http://localhost:3000/" + Model.ImageUrl)" alt="Preview" style="max-height: 100px; border: 1px solid #ccc; padding: 2px;" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="LinkUrl" class="form-label fw-bold">Link khi click vào Banner</label>
+                        <input asp-for="LinkUrl" class="form-control" />
+                        <span asp-validation-for="LinkUrl" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-0 bg-light p-3 mb-3">
+                        <div class="mb-3">
+                            <label asp-for="DisplayOrder" class="form-label fw-bold">Thứ tự hiển thị</label>
+                            <input asp-for="DisplayOrder" type="number" class="form-control" />
+                            <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-check form-switch mb-3 mt-3">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" id="isActiveSwitch">
+                            <label class="form-check-label fw-bold" for="isActiveSwitch">Kích hoạt hiển thị</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 border-top pt-3">
+                <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Cập nhật</button>
+                <a asp-action="Index" class="btn btn-secondary ms-2"><i class="bi bi-x-circle"></i> Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

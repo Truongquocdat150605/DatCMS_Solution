@@ -26,12 +26,40 @@ namespace CMS.Backend.Controllers
             _context = context;
         }
 
-        // 1. DANH SÁCH SẢN PHẨM
-        public async Task<IActionResult> Index()
+        // 1. DANH SÁCH SẢN PHẨM (có phân trang + tìm kiếm)
+        public async Task<IActionResult> Index(string q, int? page)
         {
-            var products = await _context.Products.Include(p => p.CategoryProduct).ToListAsync();
+            int pageSize = 5;
+            int pageIndex = page.GetValueOrDefault(1);
+            if (pageIndex < 1) pageIndex = 1;
+
+            var query = _context.Products
+                .Include(p => p.CategoryProduct)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                query = query.Where(p => p.Name.Contains(q));
+            }
+
+            int totalCount = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var products = await query
+                .OrderByDescending(p => p.Id)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.PageIndex = pageIndex;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.CurrentSearch = q;
+
             return View(products);
         }
+
 
         // 2. THÊM MỚI (GET)
         [HttpGet]

@@ -1,9 +1,8 @@
-﻿@* * Người thực hiện: Trương Quốc Đạt
+@* * Người thực hiện: Trương Quốc Đạt
  * MSSV: 2123110209
  * Ngày thực hiện: 22/05/2026
  * Tên file: Edit.cshtml
- * Mô tả: Giao diện chỉnh sửa bài viết - Bài tập Buổi 03.
- * Chức năng: Hiển thị dữ liệu cũ và cho phép người dùng cập nhật thông tin bài viết.
+ * Mô tả: Giao diện chỉnh sửa bài viết - Có tích hợp CKEditor với Upload Ảnh.
  *@
 
 @model CMS.Data.Entities.Post
@@ -18,7 +17,7 @@
 
     <div class="row">
         <div class="col-md-8">
-            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data" id="post-form">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="ImageUrl" />
@@ -52,14 +51,63 @@
 
                 <div class="mb-3">
                     <label class="form-label font-weight-bold">Nội dung</label>
-                    <textarea asp-for="Content" class="form-control" rows="8"></textarea>
+                    @* Giá trị Content hiện tại sẽ được load vào CKEditor *@
+                    <textarea asp-for="Content" id="editor-content" class="form-control" rows="8"></textarea>
                 </div>
 
                 <div class="mt-4">
                     <button type="submit" class="btn btn-warning">Cập nhật</button>
-                    <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+                    <a asp-action="Index" class="btn btn-secondary">Huỷ bỏ</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script>
+        class MyUploadAdapter {
+            constructor(loader) {
+                this.loader = loader;
+                this.url = 'https://localhost:7048/api/UploadApi/ckeditor';
+            }
+            upload() {
+                return this.loader.file.then(file => new Promise((resolve, reject) => {
+                    const data = new FormData();
+                    data.append('upload', file);
+                    fetch(this.url, { method: 'POST', body: data })
+                        .then(res => res.json())
+                        .then(result => {
+                            if (result.error) return reject(result.error.message);
+                            resolve({ default: result.url });
+                        })
+                        .catch(() => reject('Không thể upload ảnh!'));
+                }));
+            }
+            abort() {}
+        }
+
+        function MyUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => new MyUploadAdapter(loader);
+        }
+
+        ClassicEditor
+            .create(document.querySelector('#editor-content'), {
+                extraPlugins: [MyUploadAdapterPlugin],
+                toolbar: [
+                    'heading', '|', 'bold', 'italic', 'underline', 'link',
+                    '|', 'bulletedList', 'numberedList',
+                    '|', 'imageUpload', 'blockQuote', 'insertTable',
+                    '|', 'undo', 'redo'
+                ]
+            })
+            .then(editor => {
+                // Đồng bộ nội dung về textarea trước khi submit (quan trọng để lưu đúng dữ liệu)
+                document.querySelector('#post-form').addEventListener('submit', () => {
+                    document.querySelector('#editor-content').value = editor.getData();
+                });
+            })
+            .catch(error => console.error('Lỗi CKEditor:', error));
+    </script>
+}

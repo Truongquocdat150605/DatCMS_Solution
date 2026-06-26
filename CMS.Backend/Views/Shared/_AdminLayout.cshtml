@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin CMS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        body {
+            overflow-x: hidden;
+            background-color: #f8f9fc;
+        }
+
+        #wrapper {
+            display: flex;
+        }
+
+        /* Sidebar Style */
+        #sidebar-wrapper {
+            min-height: 100vh;
+            width: 250px;
+            background-color: #4e73df;
+            background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            transition: margin .25s ease-out;
+        }
+
+        #sidebar-wrapper .sidebar-heading {
+            padding: 1.5rem 1.25rem;
+            font-size: 1.2rem;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #sidebar-wrapper .list-group {
+            width: 250px;
+        }
+
+        #sidebar-wrapper .list-group-item {
+            background: transparent;
+            color: rgba(255,255,255,0.8);
+            border: none;
+            padding: 0.8rem 1.5rem;
+        }
+
+        #sidebar-wrapper .list-group-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        #sidebar-wrapper .list-group-item.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-left: 4px solid #ffc107;
+        }
+
+        #sidebar-wrapper .list-group-item i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        /* Content Style */
+        #page-content-wrapper {
+            width: 100%;
+        }
+
+        .navbar-admin {
+            background-color: white;
+            box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15);
+            margin-bottom: 2rem;
+        }
+
+        .footer-admin {
+            background: white;
+            padding: 20px 0;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        /* Avatar style */
+        .avatar-circle {
+            width: 35px;
+            height: 35px;
+            background-color: #4e73df;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        /* Toast notification */
+        .toast-notify {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+        }
+
+        /* Badge role */
+        .role-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .role-admin {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .role-editor {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .role-user {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div class="toast-notify">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow" role="alert">
+                <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Warning"] != null)
+        {
+            <div class="alert alert-warning alert-dismissible fade show shadow" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i> @TempData["Warning"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+
+    <div id="wrapper">
+        @await Html.PartialAsync("_AdminSidebar")
+
+        <div id="page-content-wrapper">
+            @await Html.PartialAsync("_AdminHeader")
+
+            <div class="container-fluid px-4">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+
+            @await Html.PartialAsync("_AdminFooter")
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Hiệu ứng đóng mở Sidebar
+        $("#menu-toggle").click(function (e) {
+            e.preventDefault();
+            var currentMargin = $("#sidebar-wrapper").css("margin-left");
+            if (currentMargin === "0px") {
+                $("#sidebar-wrapper").css("margin-left", "-250px");
+            } else {
+                $("#sidebar-wrapper").css("margin-left", "0px");
+            }
+        });
+
+        // Tự động ẩn thông báo sau 5 giây
+        setTimeout(function () {
+            $(".alert").fadeOut(500, function () {
+                $(this).remove();
+            });
+        }, 5000);
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

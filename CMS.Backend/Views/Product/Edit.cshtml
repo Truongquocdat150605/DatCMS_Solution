@@ -10,9 +10,11 @@
 
     <div class="row">
         <div class="col-md-8">
-            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data" id="product-form">
                 <input type="hidden" asp-for="Id" />
-                <input type="hidden" asp-for="ImageUrl" /> <div class="mb-3">
+                <input type="hidden" asp-for="ImageUrl" />
+
+                <div class="mb-3">
                     <label class="form-label font-weight-bold">Tên sản phẩm</label>
                     <input asp-for="Name" class="form-control" />
                 </div>
@@ -48,14 +50,63 @@
 
                 <div class="mb-3">
                     <label class="form-label font-weight-bold">Mô tả</label>
-                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    @* CKEditor load nội dung Description hiện tại từ Model *@
+                    <textarea asp-for="Description" id="editor-description" class="form-control" rows="4"></textarea>
                 </div>
 
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">Cập nhật</button>
-                    <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+                    <a asp-action="Index" class="btn btn-secondary">Huỷ bỏ</a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script>
+        class MyUploadAdapter {
+            constructor(loader) {
+                this.loader = loader;
+                this.url = 'https://localhost:7048/api/UploadApi/ckeditor';
+            }
+            upload() {
+                return this.loader.file.then(file => new Promise((resolve, reject) => {
+                    const data = new FormData();
+                    data.append('upload', file);
+                    fetch(this.url, { method: 'POST', body: data })
+                        .then(res => res.json())
+                        .then(result => {
+                            if (result.error) return reject(result.error.message);
+                            resolve({ default: result.url });
+                        })
+                        .catch(() => reject('Không thể upload ảnh!'));
+                }));
+            }
+            abort() {}
+        }
+
+        function MyUploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => new MyUploadAdapter(loader);
+        }
+
+        ClassicEditor
+            .create(document.querySelector('#editor-description'), {
+                extraPlugins: [MyUploadAdapterPlugin],
+                toolbar: [
+                    'heading', '|', 'bold', 'italic', 'underline', 'link',
+                    '|', 'bulletedList', 'numberedList',
+                    '|', 'imageUpload', 'blockQuote', 'insertTable',
+                    '|', 'undo', 'redo'
+                ]
+            })
+            .then(editor => {
+                // Sync nội dung CKEditor về textarea gốc trước khi submit
+                document.querySelector('#product-form').addEventListener('submit', () => {
+                    document.querySelector('#editor-description').value = editor.getData();
+                });
+            })
+            .catch(error => console.error('Lỗi CKEditor:', error));
+    </script>
+}

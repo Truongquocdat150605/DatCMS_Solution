@@ -12,6 +12,13 @@
         <a asp-action="Create" class="btn btn-success">+ Thêm sản phẩm mới</a>
     </div>
 
+    @if (!string.IsNullOrWhiteSpace(ViewBag.CurrentSearch as string))
+    {
+        <div class="alert alert-info">
+            Đang tìm kiếm sản phẩm theo từ khóa: <b>@(ViewBag.CurrentSearch)</b>
+        </div>
+    }
+
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger">@TempData["Error"]</div>
@@ -69,4 +76,30 @@
             }
         </tbody>
     </table>
+
+    @{
+        int pageIndex = ViewBag.PageIndex ?? 1;
+        int totalPages = ViewBag.TotalPages ?? 1;
+    }
+
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Pagination">
+            <ul class="pagination">
+                <li class="page-item @(pageIndex <= 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(pageIndex - 1)" tabindex="-1">Trước</a>
+                </li>
+
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == pageIndex ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(pageIndex >= totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(pageIndex + 1)">Sau</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>

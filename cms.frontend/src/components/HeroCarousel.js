@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './HeroCarousel.css';
 
 const slides = [
@@ -79,9 +80,9 @@ export default function HeroCarousel() {
               <div className="slide-content">
                 <h1 className="slide-title">{slide.title}</h1>
                 <p className="slide-subtitle">{slide.subtitle}</p>
-                <a href={slide.buttonLink} className="slide-btn">
+                <Link to={slide.buttonLink} className="slide-btn">
                   {slide.buttonText} →
-                </a>
+                </Link>
               </div>
             </div>
           ))}

@@ -1,4 +1,4 @@
-﻿
+
 /* * Tên file: CategoryProduct.cs
  * Mô tả: Thực thể lưu trữ danh mục loại sản phẩm .
  * Chức năng: Phân loại các sản phẩm trong cửa hàng.
@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CMS.Data.Entities
 {
@@ -19,7 +20,8 @@ namespace CMS.Data.Entities
         public string Name { get; set; } = string.Empty;
 
         public string? Description { get; set; }
-
+        public string? ImageUrl { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Product>? Products { get; set; }
     }
 }

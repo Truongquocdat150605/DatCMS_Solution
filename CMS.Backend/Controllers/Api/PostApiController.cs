@@ -38,6 +38,43 @@ namespace CMS.Backend.Controllers.Api
             return Ok(post);
         }
 
+        [AllowAnonymous]
+        [HttpGet("latest")]
+        public async Task<ActionResult<IEnumerable<object>>> GetLatestPosts([FromQuery] int count = 3)
+        {
+            var posts = await _context.Posts
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .OrderByDescending(p => p.CreatedDate)
+                .Take(count)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Title,
+                    p.ImageUrl,
+                    p.CreatedDate,
+                    p.CategoryId,
+                    Category = p.Category != null ? new { p.Category.Id, p.Category.Name } : null
+                })
+                .ToListAsync();
+            
+            if (posts == null || !posts.Any()) return NotFound(new { message = "Không tìm thấy bài viết nào." });
+            return Ok(posts);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("category/{categoryId}")]
+        public async Task<ActionResult<IEnumerable<Post>>> GetPostsByCategory(int categoryId)
+        {
+            var posts = await _context.Posts
+                .Include(p => p.Category)
+                .Where(p => p.CategoryId == categoryId)
+                .ToListAsync();
+                
+            if (posts == null || !posts.Any()) return NotFound(new { message = "Không tìm thấy bài viết nào." });
+            return Ok(posts);
+        }
+
         [Authorize(Roles = "Admin,Administrator")]
         [HttpPost]
         public async Task<ActionResult<Post>> PostPost([FromBody] Post post)

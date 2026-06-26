@@ -1,9 +1,10 @@
-﻿
+
 
 /* * Tên file: Product.cs
  * Mô tả: Thực thể lưu trữ thông tin chi tiết về sản phẩm.
  * Chức năng: Quản lý tên, giá, số lượng tồn kho và hình ảnh sản phẩm.
  */
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -26,6 +27,8 @@ namespace CMS.Data.Entities
         public int StockQuantity { get; set; }
 
         public string? ImageUrl { get; set; }
+
+        public DateTime CreatedAt { get; set; }
 
         public int CategoryProductId { get; set; }
 

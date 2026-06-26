@@ -87,6 +87,9 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 // 2. CẤU HÌNH PIPELINE (MIDDLEWARE)
+// 👉 Gọi Middleware Global Exception ngay từ đầu pipeline để bắt trọn mọi lỗi phía sau
+app.UseMiddleware<CMS.Backend.Middlewares.ExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
