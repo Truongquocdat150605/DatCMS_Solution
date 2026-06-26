@@ -46,7 +46,14 @@ CMS_Project/
 
 ---
 
-## 🌟 Chức Năng Nổi Bật
+## 🌟 Chức Năng Nổi Bật & Luồng Xử Lý (Logic)
+
+### 🧠 Luồng Logic Chính Trong App.js (React Router & Auth Context)
+File `App.js` đóng vai trò là "trái tim" của hệ thống Frontend, chịu trách nhiệm quản lý toàn bộ định tuyến (Routing) và trạng thái đăng nhập (Authentication):
+- **Quản lý State Auth:** Sử dụng `useState` và `useEffect` để kiểm tra thông tin người dùng từ `localStorage` (hoặc gọi API `/api/Auth/me` nếu thiếu).
+- **CartProvider (Context API):** Bọc toàn bộ ứng dụng bằng `CartProvider` giúp chia sẻ giỏ hàng (Cart) xuyên suốt giữa mọi component mà không cần truyền props rườm rà.
+- **Routing & Protected Routes:** Sử dụng `react-router-dom` để định tuyến các trang. Điểm đặc biệt là cơ chế **Protected Route** ở trang Checkout: `<Route path="/checkout" element={username ? <CheckoutPage /> : <Navigate to="/login" />} />` giúp chặn đứng khách vãng lai mua hàng khi chưa đăng nhập.
+- **Global Components:** Tích hợp `MainLayout` (Header, Footer chung) và `ChatBot` toàn cục, đảm bảo người dùng ở trang nào cũng có thể nhận được hỗ trợ.
 
 ### 🖥️ Màn hình Khách hàng (Frontend - ReactJS)
 - Hiển thị danh sách Sản phẩm và Bài viết với tính năng Phân trang mượt mà.
