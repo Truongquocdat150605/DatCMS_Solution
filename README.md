@@ -1,97 +1,96 @@
-# Đồ án: Hệ thống quản trị Nội dung & Bán hàng (CMS Backend)
+# 🔥 CMS Store E-Commerce - Hệ Thống Bán Hàng Trực Tuyến
 
-Dự án được xây dựng nhằm đáp ứng yêu cầu của học phần Phát triển ứng dụng Web. Mục tiêu chính là xây dựng một hệ thống backend kết hợp giữa trang tin tức và bán hàng, cho phép quản lý dữ liệu một cách chặt chẽ và tối ưu bằng mô hình MVC.
-
----
-
-## 1. Thông tin sinh viên thực hiện
-
-- **Họ và tên:** Trương Quốc Đạt
-- **MSSV:** 2123110209
-- **Chuyên ngành:** An ninh mạng (Cyber Security)
-- **Học phần:** Phát triển ứng dụng Web (Buổi 03)
+Chào mừng đến với **CMS Store**, một hệ thống quản lý nội dung và bán hàng trực tuyến được phát triển trên kiến trúc 3 phân tầng chuẩn mực, kết hợp giữa sức mạnh của .NET Core (Backend) và ReactJS (Frontend).
 
 ---
 
-## 2. Danh sách các tính năng nổi bật
+## 🛠️ Công Nghệ Sử Dụng
 
-- **Giao diện Quản trị:** Xây dựng Dashboard cho Admin với Sidebar điều hướng rõ ràng để quản lý hệ thống.
-- **Thao tác CRUD toàn diện:** Thực hiện các chức năng Thêm, Đọc, Sửa, Xóa cho hơn 5 bảng dữ liệu trong CSDL (Danh mục, Sản phẩm, Bài viết, Khách hàng, Đơn hàng).
-- **Kiểm soát ràng buộc dữ liệu:** Chặn việc xóa danh mục nếu danh mục đó vẫn đang chứa sản phẩm hoặc bài viết con, tránh tình trạng rác hoặc lỗi dữ liệu.
-- **Kiểm tra trùng lặp (Unique constraint):** Tự động phát hiện và cảnh báo nếu người dùng nhập trùng tên danh mục hoặc sản phẩm đã tồn tại.
-- **Server-side Validation:** Validate chặt chẽ dữ liệu gửi lên từ người dùng ở phía Server trước khi thực thi lệnh lưu vào CSDL.
-
----
-
-## 3. Công nghệ sử dụng (Tech Stack)
-
-- **Ngôn ngữ & Framework:** C#, ASP.NET Core MVC
-- **Cơ sở dữ liệu:** Microsoft SQL Server
-- **ORM:** Entity Framework Core (Code-First)
-- **Frontend (Giao diện Admin):** Razor Pages, HTML/CSS, JavaScript, Bootstrap 5
+- **Backend:** ASP.NET Core MVC & Web API (.NET 8)
+- **Frontend:** ReactJS (Component-based, React Router, Context API)
+- **Cơ sở dữ liệu:** SQL Server (sử dụng Entity Framework Core)
+- **Giao diện:** Bootstrap 5, Vanilla CSS
+- **Bảo mật:** Cookie Authentication, CORS (AllowReactApp), [Authorize] Roles
+- **Công cụ:** Visual Studio 2022, VS Code, Git/GitHub
 
 ---
 
-## 4. Cấu trúc thư mục dự án
+## 📁 Cấu Trúc Thư Mục (Tree Structure)
 
-Dự án tuân thủ mô hình kiến trúc phân lớp và MVC. Cấu trúc thư mục chính (rút gọn) bao gồm:
+Dự án được tuân thủ nghiêm ngặt theo mô hình 3 lớp (3-Tiers Architecture):
 
-- **DatCMS_Solution/**
-  - **CMS.Backend/**: Project chính xử lý logic Web và API.
-    - `Controllers/`: Các Controller tiếp nhận và xử lý request.
-    - `Views/`: Các file giao diện Razor Pages (.cshtml).
-    - `wwwroot/`: Nơi chứa các tài nguyên tĩnh (CSS, JS, Images).
-    - `appsettings.json`: File cấu hình hệ thống (Chuỗi kết nối CSDL).
-  - **CMS.Data/**: Class Library chuyên trách truy xuất dữ liệu.
-    - `Entities/`: Khai báo các thực thể (Models) tương ứng với CSDL.
-    - `Migrations/`: Lịch sử và các bản cập nhật cấu trúc CSDL của EF Core.
-    - `CMSDbContext.cs`: Cấu hình kết nối Entity Framework Core.
-  - `README.md`: Tài liệu mô tả và hướng dẫn dự án.
+```text
+CMS_Project/
+│
+├── 📂 CMS.Data/                 # (Tầng 1: Data Access Layer)
+│   ├── CMSDbContext.cs          # File kết nối Entity Framework Core với CSDL
+│   └── Entities/                # Chứa 8+ thực thể Database (Product, Order, User...)
+│
+├── 📂 CMS.Backend/              # (Tầng 2: Business Logic & API)
+│   ├── Controllers/             # Quản lý giao diện MVC Admin (Render Views)
+│   ├── Controllers/Api/         # Cung cấp dữ liệu (JSON) cho Frontend ReactJS
+│   ├── Views/                   # Giao diện Admin bằng Razor (.cshtml)
+│   ├── appsettings.json         # Chứa chuỗi kết nối SQL Server, Secret Keys
+│   └── Program.cs               # Cấu hình Middleware, lai giữa MVC và Web API
+│
+└── 📂 cms.frontend/             # (Tầng 3: Presentation Layer)
+    ├── public/                  # Chứa file tĩnh (ảnh, index.html)
+    ├── src/                     # Toàn bộ mã nguồn ReactJS
+    │   ├── components/          # Giao diện dùng chung (Header, Footer, Chatbot...)
+    │   ├── core_modules/        # Xử lý Logic: Gọi API (axios), Context API
+    │   ├── pages/               # Chứa các giao diện trang (Home, Cart, Checkout...)
+    │   ├── styles/              # Các file CSS tự thiết kế, giao diện hiện đại
+    │   └── App.js               # Khai báo định tuyến (Routes)
+    └── package.json             # Khai báo thư viện NPM
+```
 
 ---
 
-## 5. Hướng dẫn cài đặt chi tiết
+## 🌟 Chức Năng Nổi Bật
 
-Dưới đây là các bước để tải và cài đặt dự án lên máy cá nhân.
+### 🖥️ Màn hình Khách hàng (Frontend - ReactJS)
+- Hiển thị danh sách Sản phẩm và Bài viết với tính năng Phân trang mượt mà.
+- Tìm kiếm sản phẩm thông minh và Lọc sản phẩm theo danh mục.
+- Hiển thị Banner động, đồng bộ trực tiếp từ Database.
+- Giỏ hàng (Cart) lưu trữ Local, tính tổng tiền tự động, tự thay đổi số lượng.
+- Luồng thanh toán Checkout an toàn, validate form kỹ càng.
+- Hệ thống tạo Đơn hàng tự động qua API.
 
-**Bước 1: Tải source code**
-Mở terminal và gõ lệnh sau để clone dự án từ Github:
-```bash
-git clone https://github.com/Truongquocdat150605/DatCMS_Solution.git
-cd DatCMS_Solution
-```
-
-**Bước 2: Cấu hình kết nối CSDL**
-Mở file `appsettings.json` trong dự án `CMS.Backend` và thay đổi chuỗi `DefaultConnection` cho phù hợp với máy của bạn:
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=YOUR_SERVER_NAME;Database=CMS_Database;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
-}
-```
-
-**Bước 3: Khởi tạo Cơ sở dữ liệu (Migration)**
-Mở Terminal tại thư mục gốc, chạy lệnh sau để Entity Framework tự động tạo cấu trúc các bảng trong SQL Server:
-```bash
-dotnet ef database update --project CMS.Data --startup-project CMS.Backend
-```
-*(Nếu máy chưa cài EF Core tool, hãy chạy lệnh `dotnet tool install --global dotnet-ef` trước).*
+### ⚙️ Màn hình Quản trị (Admin - .NET MVC)
+- Đăng nhập bảo mật (Session/Cookie) với tính năng Role-based (Admin).
+- Giao diện Layout Sidebar thông minh, linh hoạt.
+- Quản lý toàn diện dữ liệu (CRUD) cho 8 bảng: User, Post, Category, Product, Customer, Order...
+- Tính năng **Quản lý Banner**: Thêm/Sửa/Xóa ảnh quảng cáo ngoài trang chủ.
+- Chi tiết Đơn hàng hiện đại: Cho phép **Xóa từng món hoặc Xóa tất cả sản phẩm** trực tiếp trong đơn.
+- Tích hợp CKEditor viết bài chuyên nghiệp.
 
 ---
 
-## 6. Hướng dẫn chạy dự án
+## 🚀 Hướng Dẫn Cài Đặt Và Khởi Chạy
 
-**Bước 1: Khởi động server**
-Mở Terminal ở thư mục `CMS.Backend` và gõ:
-```bash
-dotnet run
-```
-Hoặc bạn có thể mở dự án bằng Visual Studio 2022 và bấm nút Run (F5).
+### Yêu cầu hệ thống:
+- SQL Server Management Studio (SSMS)
+- Visual Studio 2022 (cho Backend)
+- NodeJS (cho Frontend)
 
-**Bước 2: Truy cập ứng dụng**
-Mở trình duyệt web và điền vào thanh địa chỉ:
-```
-https://localhost:7048
-```
-*(Lưu ý cổng 7048 có thể thay đổi tùy theo cấu hình hiển thị trên terminal của bạn).*
+### Bước 1: Khởi động Backend (API & Admin)
+1. Mở Solution bằng Visual Studio.
+2. Thiết lập dự án `CMS.Backend` làm **Startup Project**.
+3. Cập nhật Connection String trong file `appsettings.json` cho phù hợp với máy của bạn.
+4. Chạy lệnh Migration nếu chưa có database: `Update-Database`.
+5. Nhấn **F5** để chạy dự án. Mặc định Backend sẽ chạy ở cổng `https://localhost:7048`.
 
-Tại đây, bạn có thể sử dụng thanh điều hướng bên trái để thao tác Thêm, Sửa, Xóa trên các danh mục và sản phẩm.
+### Bước 2: Khởi động Frontend (ReactJS)
+1. Mở thư mục `cms.frontend` bằng Terminal (hoặc VS Code).
+2. Chạy lệnh cài đặt thư viện: 
+   ```bash
+   npm install
+   ```
+3. Khởi động máy chủ phát triển React:
+   ```bash
+   npm start
+   ```
+4. Website mua sắm sẽ được tự động bật lên tại `http://localhost:3000`.
+
+---
+*Developed with ♥ by Trương Quốc Đạt.*
